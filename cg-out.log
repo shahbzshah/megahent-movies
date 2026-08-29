@@ -1,0 +1,23 @@
+
+[cineglass] target URL: http://localhost:5173
+[cineglass] custom streaming-ad filters loaded ( 43 rules )
+[cineglass] ad blocking ENABLED — lists: 19 (base: 17 | central: 1 | custom: 1)
+[cineglass] network debug tap ON — iframe request domains will be logged
+[cineglass] admin kill-switch ON — showing unavailable screen
+[cineglass] loaded → data:text/html;charset=utf-8,%3C!doctype%20html%3E%0A%3Chtml%20lang%3D%22en%22%3E%0A%3Chead%3E%0A%3Cmeta%20charset%3D%22utf-8%22%3E%0A%3Ctitle%3ECineGlass%20%E2%80%94%20Offline%3C%2Ftitle%3E%0A%3Cstyle%3E%0A%20%20*%20%7B%20margin%3A%200%3B%20padding%3A%200%3B%20box-sizing%3A%20border-box%20%7D%0A%20%20html%2C%20body%20%7B%20height%3A%20100%25%20%7D%0A%20%20body%20%7B%0A%20%20%20%20display%3A%20flex%3B%20align-items%3A%20center%3B%20justify-content%3A%20center%3B%0A%20%20%20%20background%3A%20%23050505%3B%0A%20%20%20%20color%3A%20%23e8e8e8%3B%0A%20%20%20%20font-family%3A%20'Segoe%20UI'%2C%20system-ui%2C%20-apple-system%2C%20sans-serif%3B%0A%20%20%20%20text-align%3A%20center%3B%0A%20%20%20%20user-select%3A%20none%3B%0A%20%20%20%20cursor%3A%20default%3B%0A%20%20%7D%0A%20%20.wrap%20%7B%20max-width%3A%20440px%3B%20padding%3A%2032px%20%7D%0A%20%20.logo%20%7B%0A%20%20%20%20font-size%3A%2046px%3B%20font-weight%3A%20800%3B%20letter-spacing%3A%20-1px%3B%0A%20%20%20%20background%3A%20linear-gradient(90deg%2C%20%23ffb59e%2C%20%23ff571a)%3B%0A%20%20%20%20-webkit-background-clip%3A%20text%3B%20background-clip%3A%20text%3B%20color%3A%20transparent%3B%0A%20%20%20%20text-shadow%3A%200%200%2040px%20rgba(255%2C%20181%2C%20158%2C%20.25)%3B%0A%20%20%20%20margin-bottom%3A%2020px%3B%0A%20%20%7D%0A%20%20h1%20%7B%20font-size%3A%2022px%3B%20font-weight%3A%20600%3B%20margin-bottom%3A%2010px%20%7D%0A%20%20p.sub%20%7B%20color%3A%20%239ca3af%3B%20font-size%3A%2014px%3B%20line-height%3A%201.55%3B%20margin-bottom%3A%2028px%20%7D%0A%20%20.spinner%20%7B%0A%20%20%20%20width%3A%2034px%3B%20height%3A%2034px%3B%20margin%3A%200%20auto%2016px%3B%0A%20%20%20%20border%3A%203px%20solid%20rgba(255%2C255%2C255%2C.12)%3B%0A%20%20%20%20border-top-color%3A%20%23ff571a%3B%0A%20%20%20%20border-radius%3A%2050%25%3B%0A%20%20%20%20animation%3A%20spin%20.9s%20linear%20infinite%3B%0A%20%20%7D%0A%20%20%40keyframes%20spin%20%7B%20to%20%7B%20transform%3A%20rotate(360deg)%20%7D%20%7D%0A%20%20.status%20%7B%20color%3A%20%23ffb59e%3B%20font-size%3A%2013px%3B%20letter-spacing%3A%20.4px%20%7D%0A%20%20.dots%3A%3Aafter%20%7B%20content%3A%20''%3B%20animation%3A%20dots%201.2s%20steps(4%2C%20end)%20infinite%20%7D%0A%20%20%40keyframes%20dots%20%7B%200%25%20%7B%20content%3A%20''%20%7D%2025%25%20%7B%20content%3A%20'.'%20%7D%2050%25%20%7B%20content%3A%20'..'%20%7D%2075%25%20%7B%20content%3A%20'...'%20%7D%20%7D%0A%3C%2Fstyle%3E%0A%3C%2Fhead%3E%0A%3Cbody%3E%0A%20%20%3Cdiv%20class%3D%22wrap%22%3E%0A%20%20%20%20%3Cdiv%20class%3D%22logo%22%3ECineGlass%3C%2Fdiv%3E%0A%20%20%20%20%3Ch1%3EYou're%20offline%3C%2Fh1%3E%0A%20%20%20%20%3Cp%20class%3D%22sub%22%3ECineGlass%20is%20temporarily%20unavailable.%20Please%20check%20back%20soon.%3C%2Fp%3E%0A%20%20%20%20%3Cdiv%20class%3D%22spinner%22%3E%3C%2Fdiv%3E%0A%20%20%20%20%3Cp%20class%3D%22status%22%3EReconnecting%3Cspan%20class%3D%22dots%22%3E%3C%2Fspan%3E%3C%2Fp%3E%0A%20%20%3C%2Fdiv%3E%0A%3C%2Fbody%3E%0A%3C%2Fhtml%3E
+[cineglass] UA ends with: "3.4.1 Safari/537.36 CineGlassDesktop/1.0"
+[cineglass] admin kill-switch OFF — loading http://localhost:5173
+[cineglass] loaded → http://localhost:5173/
+[cineglass] UA ends with: "3.4.1 Safari/537.36 CineGlassDesktop/1.0"
+[renderer] Uncaught ReferenceError: IS_SHELL is not defined (http://localhost:5173/src/App.jsx:191)
+[renderer] Uncaught ReferenceError: IS_SHELL is not defined (http://localhost:5173/src/App.jsx:191)
+[renderer] The above error occurred in the <Shell> component:
+
+    at Shell (http://localhost:5173/src/App.jsx:45:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=95203cf6:4523:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=95203cf6:5261:5)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. (http://localhost:5173/node_modules/.vite/deps/chunk-XPR23Y44.js?v=95203cf6:14030)
+[renderer] Uncaught ReferenceError: IS_SHELL is not defined (http://localhost:5173/node_modules/.vite/deps/chunk-XPR23Y44.js?v=95203cf6:19411)

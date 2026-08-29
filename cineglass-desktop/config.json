@@ -1,0 +1,10 @@
+{
+  "url": "http://localhost:5173",
+  "remoteConfigUrl": "http://localhost:8080/cineglass-server/api/app-config.php",
+  "adblock": true,
+  "blockPopups": true,
+  "filterListUrls": ["http://localhost:8090/cineglass-filters.txt"],
+  "debugNet": true,
+  "width": 1440,
+  "height": 900
+}

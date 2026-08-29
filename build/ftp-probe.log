@@ -1,0 +1,7 @@
+﻿ftp.archimnet.com:21 -> closed/timeout
+ftp.archimnet.com:990 -> closed/timeout
+movies.archimnet.com:21 -> OPEN
+movies.archimnet.com:990 -> closed/timeout
+archimnet.com:21 -> closed/timeout
+archimnet.com:990 -> closed/timeout
+DONE

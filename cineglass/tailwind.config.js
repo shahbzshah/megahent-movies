@@ -1,0 +1,93 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        // Near-black / charcoal surface family
+        background: '#0b0b0d',
+        'surface-dim': '#0b0b0d',
+        surface: '#101013',
+        'surface-bright': '#2e2e33',
+        'surface-container-lowest': '#08080a',
+        'surface-container-low': '#131316',
+        'surface-container': '#17171a',
+        'surface-container-high': '#1f1f23',
+        'surface-container-highest': '#28282d',
+        'surface-variant': '#232327',
+        outline: '#4a4a52',
+        'outline-variant': '#2c2c31',
+
+        // Text: bright white titles, muted gray metadata
+        'on-background': '#f5f5f7',
+        'on-surface': '#f5f5f7',
+        'on-surface-variant': '#9b9ba3',
+        tertiary: '#8b8b93',
+        'on-tertiary': '#101013',
+        'on-tertiary-container': '#c6c6cd',
+        'tertiary-container': '#2a2a30',
+        'inverse-surface': '#f5f5f7',
+        'inverse-on-surface': '#17171a',
+        'inverse-primary': '#8b0009',
+
+        // Restrained cinematic red — primary actions, active states, progress
+        primary: '#e50914',
+        'primary-container': '#e50914',
+        'on-primary': '#ffffff',
+        'on-primary-container': '#ffffff',
+        'primary-fixed': '#ff5c63',
+        'primary-fixed-dim': '#b20710',
+        'surface-tint': '#e50914',
+        'on-primary-fixed': '#2b0003',
+        'on-primary-fixed-variant': '#85040b',
+
+        // Muted champagne gold — ratings, match %, secondary emphasis
+        secondary: '#d7b56d',
+        'secondary-container': '#3a2f1b',
+        'on-secondary': '#1d1608',
+        'on-secondary-container': '#f0dfae',
+        'secondary-fixed': '#f0dfae',
+        'secondary-fixed-dim': '#d7b56d',
+        'on-secondary-fixed': '#1d1608',
+        'on-secondary-fixed-variant': '#4a3a17',
+
+        error: '#ffb4ab',
+        'on-error': '#690005',
+        'error-container': '#93000a',
+        'on-error-container': '#ffdad6',
+      },
+      borderRadius: { DEFAULT: '0.25rem', lg: '0.5rem', xl: '0.75rem', full: '9999px' },
+      spacing: {
+        'container-padding-mobile': '20px',
+        unit: '8px',
+        'section-gap': '48px',
+        gutter: '24px',
+        'container-padding-desktop': '64px',
+      },
+      fontFamily: {
+        'headline-xl': ['Sora'],
+        'label-md': ['Inter'],
+        'display-lg-mobile': ['Sora'],
+        'headline-md': ['Sora'],
+        'body-lg': ['Inter'],
+        'display-lg': ['Sora'],
+        'label-sm': ['Inter'],
+        'body-md': ['Inter'],
+        'headline-lg': ['Sora'],
+      },
+      fontSize: {
+        'headline-xl': ['40px', { lineHeight: '1.2', fontWeight: '600' }],
+        'label-md': ['14px', { lineHeight: '1', letterSpacing: '0.05em', fontWeight: '600' }],
+        'display-lg-mobile': ['40px', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'headline-md': ['24px', { lineHeight: '1.4', fontWeight: '500' }],
+        'body-lg': ['18px', { lineHeight: '1.6', fontWeight: '400' }],
+        'display-lg': ['64px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'label-sm': ['12px', { lineHeight: '1', fontWeight: '500' }],
+        'body-md': ['16px', { lineHeight: '1.6', fontWeight: '400' }],
+        'headline-lg': ['32px', { lineHeight: '1.3', fontWeight: '600' }],
+      },
+    },
+  },
+  plugins: [],
+}

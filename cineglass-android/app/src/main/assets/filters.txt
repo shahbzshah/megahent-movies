@@ -1,0 +1,150 @@
+! ============================================================================
+! CineGlass central filter list
+! Served from the shared host and fetched by every CineGlass shell at startup.
+! Editing this file updates ad blocking for all clients — no app updates needed.
+! Base lists (EasyList/uBlock) are loaded by the shells themselves; this file
+! holds the custom streaming-ad rules on top of that base.
+! ============================================================================
+
+! --- Network filters: popunder / CPM ad networks used by embed players -------
+||propu.sh^
+||propellerads.com^
+||propellerclick.com^
+||toponadnet.com^
+||onclickperformance.com^
+||onclickalgo.com^
+||onclickmega.com^
+||highperformancecpm.com^
+||highestpaymentcpm.com^
+||highrevenuecpm.com^
+||effectivegatecpm.com^
+||profitableratecpm.com^
+||revenuecpmgate.com^
+||clickaine.com^
+||adcash.com^
+||adcashrevenue.com^
+||betteradsystem.com^
+||doubleclick.net^
+||googlesyndication.com^
+||googleadservices.com^
+||adservice.google.com^
+||popads.net^
+||popcash.net^
+||zedo.com^
+||outbrain.com^
+||taboola.com^
+||mgid.com^
+||exoclick.com^
+||exosrv.com^
+||juicyads.com^
+||hilltopads.net^
+||adsterra.com^
+||adskeeper.com^
+||bidvertiser.com^
+||infolinks.com^
+||clickadu.com^
+||admaven.com^
+||ad-maven.net^
+||onclickpredictiv.com^
+||onclickshow.com^
+
+! --- Video ad delivery: VAST/IMA prerolls and midrolls inside embed players --
+||imasdk.googleapis.com^
+||pubads.g.doubleclick.net^
+||ad.doubleclick.net^
+||pubmatic.com^
+||rubiconproject.com^
+||openx.net^
+||smartadserver.com^
+||casalemedia.com^
+||criteo.com^
+||criteo.net^
+||bidswitch.net^
+||sharethrough.com^
+||indexww.com^
+||33across.com^
+||adnxs.com^
+||media.net^
+||amazon-adsystem.com^
+||moatads.com^
+||adsafeprotected.com^
+||doubleverify.com^
+||scorecardresearch.com^
+||quantserve.com^
+
+! --- Cosmetic filters: hide leftover banner containers inside embed pages ----
+2embed.cc##iframe[src*="ads"]
+2embed.cc##iframe[src*="propu"]
+2embed.cc##div[id^="banner"]
+2embed.cc##div[class*="ad-"]
+2embed.cc##a[href*="propu"]
+vidsrc.xyz##iframe[src*="ads"]
+multiembed.mov##iframe[src*="ads"]
+multiembed.mov##.ad-overlay
+multiembed.mov###AD_slot
+multiembed.mov##div[id^="google_ads"]
+multiembed.mov##iframe[src*="doubleclick"]
+vidlink.pro##iframe[src*="ads"]
+
+! --- 2Embed: heaviest ad offender; cosmetic cleanup for shells that support it
+2embed.cc##iframe[src*="propu"]
+2embed.cc##div[id^="Ads"]
+2embed.cc##div[class*="banner"]
+2embed.cc##a[target="_blank"]
+
+! --- Video ad delivery addenda ------------------------------------------------
+||effectivecpmnetwork.com^
+||effectivecpmnetwork.net^
+||adsco.re^
+||histats.com^
+||hstatics.net^
+
+! --- Live TV (NontonGo player chain) -------------------------------------------
+! Confirmed on nontongo.win/livetv/<id> and its dlstreams.st stream page:
+! acscdn.com = AdCash aclib.runPop; bvtpk.com / llvpn.com = Adsterra
+! tag.min.js popunders; intelligenceadex.com (+ cloudfront fallback) and
+! muggpolys.com / hillsakra.com = rotating popunder loaders; mks98.com =
+! popunder landing page. NOTE: hamis.romponalis.st hosts the actual stream
+! player frame — do NOT block it.
+||acscdn.com^
+||bvtpk.com^
+||llvpn.com^
+||mks98.com^
+||intelligenceadex.com^
+||muggpolys.com^
+||hillsakra.com^
+||dklx87bzgnce.cloudfront.net^
+
+! Round 2: PopAds rotating throwaway domains (dlstreams stream page),
+! the direct-link popunder loader inside the romponalis player frame,
+! and the waust.at tracker. These rotate constantly — the APK also
+! strips the loader scripts from the player pages at the network layer.
+||xadsmart.com^
+||yumswqbnhgl.com^
+||lzblmscveiqb.com^
+||d11enq2rymy0yl.cloudfront.net^
+||spikertrepan.com^
+||waust.at^
+||adsco.re^
+||histats.com^
+||hstatics.net^
+||effectivecpmnetwork.net^
+||xadsmart.com^
+||yumswqbnhgl.com^
+||lzblmscveiqb.com^
+||d11enq2rymy0yl.cloudfront.net^
+||spikertrepan.com^
+||waust.at^
+||adsco.re^
+||histats.com^
+||hstatics.net^
+||effectivecpmnetwork.net^
+
+! --- Round 3: APK live-tv shell-log captures ----------------------------------
+! spendsdetachment.com = popunder landing opened from nontongo/livetv pages,
+! luugy.com = monetag direct-link loader (?dovr=true), s.click.aliexpress.com
+! = the AliExpress affiliate click tracker trailing the same pop. All rotating
+! pop hosts also funnel their landings through the /smartpop/ path.
+||spendsdetachment.com^
+||luugy.com^
+||s.click.aliexpress.com^

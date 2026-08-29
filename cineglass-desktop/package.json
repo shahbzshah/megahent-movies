@@ -1,0 +1,46 @@
+{
+  "name": "MegahEnt-desktop",
+  "version": "0.1.0",
+  "description": "MegahEnt desktop shell — network-level ad blocking around the MegahEnt web app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "build": {
+    "appId": "app.MegahEnt.desktop",
+    "productName": "MegahEnt",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "config.json",
+      "filters/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "MegahEnt-setup.${ext}",
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^43.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "@ghostery/adblocker-electron": "^2.18.2"
+  }
+}

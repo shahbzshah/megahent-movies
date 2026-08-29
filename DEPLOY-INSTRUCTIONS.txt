@@ -1,0 +1,51 @@
+MEGAHENT — CPANEL DEPLOY (megahent-cpanel-deploy.zip)
+======================================================
+
+WHAT'S INSIDE
+- index.html + assets/        the built app (latest: red cinematic UI, live
+                              search, English-only portal, Live TV, catalog expansion)
+- .htaccess                   SPA routing + /api/tmdb and /xtream rewrites to the PHP proxies
+- tmdb-proxy.php              TMDB API proxy (key included)
+- xtream-proxy.php            IPTV portal proxy
+- cineglass-server/           admin API (kill-switch, announcements, curated rows, availability scanner)
+- cineglass-filters.txt       ad-block filter list for the desktop/Android shells
+- downloads/                  Android APK + Windows setup
+
+UPLOAD (cPanel File Manager)
+1. cPanel -> File Manager -> public_html
+   (Upload to the ROOT. A subfolder breaks the relative API paths.)
+2. If old files exist, delete index.html and the old assets/ folder first
+   (keep cineglass-server/ if you already configured it).
+3. Upload megahent-cpanel-deploy.zip
+4. Right-click the zip -> Extract -> extract INTO public_html
+5. Delete the zip after extraction.
+
+ONE-TIME DATABASE SETUP (for the admin API)
+1. cPanel -> MySQL Databases -> create a database (e.g. user_cineglass)
+   and a user, add the user to the DB with ALL PRIVILEGES.
+2. cPanel -> phpMyAdmin -> select that database -> Import ->
+   upload cineglass-server/schema.sql -> Go.
+3. File Manager -> cineglass-server/config.php -> Edit:
+     DB_NAME -> your database name
+     DB_USER -> your database user
+     DB_PASS -> your database password
+   (DB_HOST stays 'localhost'.)
+4. cPanel -> MultiPHP Manager -> set PHP 8.0+ for the domain.
+
+No database? The site still works — you just lose the kill-switch,
+announcements, curated rows and the availability scanner (the app
+degrades gracefully).
+
+VERIFY AFTER DEPLOY
+1. https://yourdomain.com/                      -> app loads
+2. https://yourdomain.com/movies                -> refresh, no 404
+3. https://yourdomain.com/api/tmdb?path=/trending/movie/week
+                                                -> JSON from TMDB
+4. Live TV page                                 -> English categories load
+5. https://yourdomain.com/xtream/player_api.php?portal=http://gadareurop89.xyz:8080&username=mello&password=mello1234
+                                                -> JSON auth response
+
+NOTE
+- The APK/desktop shells point at your LAN dev server by default; the admin
+  server (cineglass-server on this host) can repoint them remotely via
+  shellConfig.url once you set the DB up.

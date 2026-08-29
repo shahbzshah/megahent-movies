@@ -1,0 +1,1 @@
+UPDATE cineglass.settings SET svalue='online' WHERE skey='site_status';

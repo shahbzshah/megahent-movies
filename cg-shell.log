@@ -1,0 +1,33 @@
+
+[MegahEnt] target URL: http://localhost:5173
+(electron) 'session.loadExtension' is deprecated and will be removed. Please use 'session.extensions.loadExtension' instead.
+[MegahEnt] uBlock Origin Lite ENABLED (2026.825.1619)
+[MegahEnt] custom streaming-ad filters loaded ( 43 rules )
+[12600:0827/083528.572:ERROR:extensions\browser\extensions_browser_client.cc:92] Extension Error:
+  OTR:     false
+  Level:   2
+  Source:  chrome-extension://blkbgfolegdigmdnfhnlnbloifoghnid/js/background.js
+  Message: Uncaught TypeError: Cannot read properties of undefined (reading 'onRemoved')
+  ID:      blkbgfolegdigmdnfhnlnbloifoghnid
+  Type:    RuntimeError
+  Context: chrome-extension://blkbgfolegdigmdnfhnlnbloifoghnid/js/background.js
+  Stack Trace: 
+    {
+      Line:     882
+      Column:   1
+      URL:      chrome-extension://blkbgfolegdigmdnfhnlnbloifoghnid/js/background.js
+      Function: (anonymous function)
+    }
+[12600:0827/083528.574:ERROR:extensions\browser\extensions_browser_client.cc:92] Extension Error:
+  OTR:     false
+  Level:   1
+  Source:  manifest.json
+  Message: Service worker registration failed. Status code: 15
+  ID:      blkbgfolegdigmdnfhnlnbloifoghnid
+  Type:    ManifestError
+[MegahEnt] ad blocking ENABLED — lists: 19 (base: 17 | central: 1 | custom: 1)
+[MegahEnt] network debug tap ON — iframe request domains will be logged
+(electron) 'console-message' arguments are deprecated and will be removed. Please use Event<WebContentsConsoleMessageEventParams> object instead.
+[MegahEnt] loaded → http://localhost:5173/
+[MegahEnt] UA ends with: "43.4.1 Safari/537.36 MegahEntDesktop/1.0"
+[12600:0827/083615.910:ERROR:content\browser\network_service_instance_impl.cc:721] Network service crashed or was terminated, restarting service.

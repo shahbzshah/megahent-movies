@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { background-color: #0b0b0d; color: #f5f5f7; overflow-x: hidden; }
+
+html { scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0b0b0d; }
+::-webkit-scrollbar-thumb { background: #28282d; border-radius: 8px; border: 2px solid #0b0b0d; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a41; }
+html { scrollbar-color: #28282d #0b0b0d; scrollbar-width: thin; }
+
+:focus-visible { outline: 2px solid rgba(229, 9, 20, 0.9); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Surfaces -------------------------------------------------------------
+   Minimal glass: mostly-solid charcoal with a light blur. No heavy
+   glassmorphism — panels should read as quiet chrome over the imagery. */
+.glass-panel {
+  background-color: rgba(23, 23, 26, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.glass-panel-hover:hover {
+  background: rgba(31, 31, 35, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.glass-floating { backdrop-filter: blur(12px); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55); }
+.glass-active {
+  background: rgba(229, 9, 20, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 9, 20, 0.35);
+}
+.glass-button {
+  background: rgba(40, 40, 45, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.glass-button:hover { background: rgba(46, 46, 51, 0.9); border-color: rgba(255, 255, 255, 0.28); }
+
+/* --- Actions --------------------------------------------------------------- */
+.btn-primary {
+  background: #e50914;
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.25);
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+.btn-primary:hover { filter: brightness(1.15); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-ghost { background-color: rgba(11, 11, 13, 0.4); border: 1px solid rgba(255, 255, 255, 0.35); backdrop-filter: blur(6px); }
+.btn-ghost:hover { border-color: rgba(255, 255, 255, 0.6); }
+
+/* --- Cards & overlays ------------------------------------------------------- */
+.movie-card { transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; }
+.movie-card:hover { transform: scale(1.04); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65); }
+.gradient-overlay { background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%); }
+.movie-card-overlay { background: linear-gradient(to top, rgba(8,8,10,0.95) 0%, rgba(8,8,10,0) 100%); }
+.hero-gradient { background: linear-gradient(0deg, rgba(11,11,13,1) 0%, rgba(11,11,13,0.55) 42%, rgba(11,11,13,0) 100%); }
+.text-glow { text-shadow: 0 2px 24px rgba(0, 0, 0, 0.8); }
+.text-gradient { background: linear-gradient(90deg, #ff5c63, #e50914); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* --- Navigation -------------------------------------------------------------- */
+.nav-link.active { color: #ffffff; font-weight: 700; background: rgba(229, 9, 20, 0.12); box-shadow: inset 3px 0 0 #e50914; }
+.nav-link.active .nav-icon { font-variation-settings: 'FILL' 1; color: #e50914; }
+
+/* Mobile bottom-nav active treatment */
+.bottom-link.active { color: #ffffff; }
+.bottom-link.active .nav-icon { font-variation-settings: 'FILL' 1; color: #e50914; }
+.bottom-link.active .bottom-dot { opacity: 1; transform: scaleX(1); }
+
+/* --- Toasts ------------------------------------------------------------------- */
+#toast-container { position: fixed; top: 90px; right: 16px; z-index: 100; display: flex; flex-direction: column; gap: 8px; max-width: calc(100vw - 32px); }
+@media (min-width: 768px) { #toast-container { right: 24px; max-width: 420px; } }
+.toast {
+  background: rgba(23,23,26,0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid #e50914;
+  color: #f5f5f7; padding: 12px 20px; border-radius: 12px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.6); animation: toastIn 0.3s ease; font-size: 14px; font-weight: 500;
+}
+.toast .material-symbols-outlined { color: #d7b56d; }
+.toast.hiding { animation: toastOut 0.3s ease forwards; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(50px); } }
+
+.spinner { width: 56px; height: 56px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.15); border-top-color: #e50914; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+input[type="range"] { cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #e50914; box-shadow: 0 0 8px rgba(229,9,20,0.7); }
+
+::selection { background: rgba(229, 9, 20, 0.4); color: #ffffff; }
+
+/* --- Motion ----------------------------------------------------------------------
+   Subtle page entry: content settles upward instead of popping in. */
+.page-enter { animation: pageEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes pageEnter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============================================================
+   PLAYER STAGE — true 16:9, responsive on every device.
+   Phones (portrait): height = width * 9/16 (fits exactly).
+   Landscape / desktop: capped by viewport minus top chrome,
+   width derived from the cap so the box never distorts.
+   ============================================================ */
+.cg-player-stage {
+  --stage-h: min(calc(100vw * 9 / 16), calc(100vh - 3.5rem));
+  height: var(--stage-h);
+  width: calc(var(--stage-h) * 16 / 9);
+  max-width: 100%;
+  margin-inline: auto;
+}
+@supports (height: 100dvh) {
+  .cg-player-stage { --stage-h: min(calc(100vw * 9 / 16), calc(100dvh - 3.5rem)); }
+}
+/* True fullscreen for the player stage (custom controls) */
+.cg-player-stage:fullscreen {
+  --stage-h: 100vh;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  margin-inline: 0;
+}

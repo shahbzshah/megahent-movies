@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>Live TV Only - IPTV Player</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+:root{--bg:#0a0e14;--bg2:#111722;--card:#161d2b;--hover:#1f2a3d;--border:#232f44;--text:#e6edf5;--muted:#8b98ad;--accent:#f0c040;--green:#3ddc84;--red:#ff5252;--yellow:#ffc542;--r:10px;--r2:8px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden}
+#header{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#f0c040,#ff8c42);display:grid;place-items:center;font-size:1rem}
+.brand h1{font-size:1rem;font-weight:700}.brand h1 span{color:var(--accent)}
+.cfg{display:flex;gap:6px;align-items:center;flex:1 1 420px;flex-wrap:wrap}
+.cfg input{background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:var(--r2);font-size:.8rem;flex:1 1 120px;min-width:0}
+.cfg input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(240,192,64,.15)}
+.cfg button{background:var(--accent);color:#111;border:none;padding:7px 14px;border-radius:var(--r2);font-weight:700;cursor:pointer;font-size:.8rem;white-space:nowrap}
+.cfg button:hover{filter:brightness(1.08)}
+.proxy{font-size:.74rem;color:var(--muted);display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:6px 10px;border-radius:var(--r2);cursor:pointer;white-space:nowrap;user-select:none}
+.proxy.on{color:var(--accent);border-color:var(--accent)}
+.proxy input{accent-color:var(--accent)}
+.badge{display:flex;align-items:center;gap:7px;font-size:.72rem;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:20px;white-space:nowrap;margin-left:auto}
+.dot{width:8px;height:8px;border-radius:50%}.dot.g{background:var(--green);box-shadow:0 0 6px rgba(61,220,132,.6)}.dot.r{background:var(--red)}.dot.y{background:var(--yellow)}.badge.loading .dot{animation:pulse .9s infinite}
+@keyframes pulse{50%{opacity:.35}}
+#layout{display:flex;flex:1;overflow:hidden;position:relative}
+#sidebar{width:250px;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;padding:10px 0}
+#sidebar h3{padding:4px 14px 8px;font-size:.68rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+#cat{list-style:none}
+#cat li{padding:8px 14px;font-size:.84rem;cursor:pointer;border-left:3px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;justify-content:space-between;gap:6px;align-items:center}
+#cat li:hover{background:var(--hover);border-left-color:var(--accent)}
+#cat li.active{background:linear-gradient(90deg,rgba(240,192,64,.12),transparent);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+#cat li .n{background:var(--card);border:1px solid var(--border);padding:1px 7px;border-radius:10px;font-size:.66rem;color:var(--muted)}
+#cat li.active .n{color:var(--accent);border-color:var(--accent)}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--bg)}
+#bar{padding:8px 12px;display:flex;gap:8px;align-items:center;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+#bar h3{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bar .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+#search{background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:var(--r2);font-size:.82rem;width:180px}
+#search:focus{outline:none;border-color:var(--accent)}
+#count{font-size:.74rem;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:4px 10px;border-radius:12px;white-space:nowrap}
+#list{flex:1;overflow-y:auto;padding:10px;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:7px;align-content:start}
+#list li{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:10px 12px;cursor:pointer;font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:10px;line-height:1.35;word-break:break-word;transition:.15s}
+#list li:hover{background:var(--hover);border-color:#3a4a68;transform:translateY(-1px)}
+#list li.playing{background:rgba(61,220,132,.08);border-color:var(--green);color:var(--green)}
+#list li img{width:32px;height:32px;object-fit:contain;background:#0b0f16;border-radius:6px;border:1px solid var(--border);flex-shrink:0}
+#list li .sub{display:block;font-size:.68rem;color:var(--muted);font-weight:400;margin-top:2px}
+.msg{grid-column:1/-1;text-align:center;padding:28px;color:var(--muted);font-size:.86rem}
+.err{grid-column:1/-1;text-align:center;padding:20px;color:var(--red);font-size:.86rem}
+#player{flex-shrink:0;background:var(--bg2);border-top:1px solid var(--border)}
+#ptop{height:42px;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--border)}
+.live{width:8px;height:8px;border-radius:50%;background:var(--red);animation:blink 1.4s infinite;display:none}
+#player:not(.idle) .live{display:block}
+@keyframes blink{50%{opacity:.2}}
+#ptitle{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.84rem;cursor:pointer}
+#player.idle #ptitle{color:var(--muted);cursor:default}
+.btn{background:var(--card);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:var(--r2);cursor:pointer;display:grid;place-items:center}
+.btn:hover{background:var(--hover)}
+#wrap{position:relative;background:#000;width:min(100%,calc(42vh * 16/9));aspect-ratio:16/9;max-height:42vh;margin:0 auto}
+#video{width:100%;height:100%;display:block;object-fit:contain}
+#ov{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.7);color:#ddd;font-size:.74rem;padding:4px 10px;border-radius:16px;pointer-events:none;opacity:0;transition:.2s;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#wrap:hover #ov{opacity:1}
+#ph{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);background:radial-gradient(circle at 30% 20%,rgba(240,192,64,.06),transparent 60%),#0b0f16}
+#player.idle #ph{display:flex}
+#player.idle #video{display:none}
+.phicon{width:56px;height:56px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:grid;place-items:center;font-size:1.4rem}
+#more{grid-column:1/-1;display:flex;justify-content:center;padding:10px}
+#more button{background:var(--card);color:var(--text);border:1px solid var(--border);padding:8px 18px;border-radius:var(--r2);cursor:pointer}
+#more button:hover{background:var(--hover)}
+#hamburger{display:none;background:var(--card);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:var(--r2);cursor:pointer}
+#backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:30;opacity:0;pointer-events:none;transition:.2s}
+#backdrop.show{opacity:1;pointer-events:auto}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:#2c3a52;border-radius:4px}
+@media(max-width:768px){
+  #hamburger{display:grid;place-items:center}
+  #sidebar{position:fixed;top:0;bottom:0;left:0;width:260px;transform:translateX(-100%);z-index:40;transition:.25s;box-shadow:0 0 30px rgba(0,0,0,.5)}
+  #sidebar.open{transform:translateX(0)}
+  #search{width:120px}
+  #list{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="header">
+  <div class="brand"><div class="logo">📺</div><h1>Live <span>TV</span></h1></div>
+  <button id="hamburger">☰</button>
+  <div class="cfg">
+    <input id="portal" value="http://ma.vimepro2.com:80" placeholder="Portal URL" spellcheck="false">
+    <input id="user" value="0006958267" placeholder="Username" spellcheck="false">
+    <input id="pass" value="e211cd753f24" placeholder="Password" spellcheck="false" type="password">
+    <button id="load">⟳ Load Channels</button>
+    <label class="proxy" id="proxyToggle" title="Route through CORS proxy if streams fail"><input type="checkbox" id="useProxy"> Proxy</label>
+  </div>
+  <div class="badge" id="status"><span class="dot y" id="dot"></span><span id="stext">Ready</span></div>
+</div>
+
+<div id="layout">
+  <div id="backdrop"></div>
+  <div id="sidebar">
+    <h3>Categories</h3>
+    <ul id="cat"><li class="msg">Click Load Channels</li></ul>
+  </div>
+  <div id="main">
+    <div id="bar">
+      <h3 id="catTitle">Live Channels</h3>
+      <div class="right">
+        <input id="search" placeholder="Search channels..." autocomplete="off">
+        <span id="count">0</span>
+      </div>
+    </div>
+    <ul id="list"><li class="msg">No channels loaded — click Load Channels</li></ul>
+    <div id="player" class="idle">
+      <div id="ptop">
+        <span class="live"></span>
+        <span id="ptitle">⏵ Select a channel to play</span>
+        <button class="btn" id="fsBtn" title="Fullscreen">⛶</button>
+      </div>
+      <div id="wrap">
+        <video id="video" controls autoplay playsinline webkit-playsinline referrerpolicy="no-referrer"></video>
+        <div id="ov">⏵ Select a channel</div>
+        <div id="ph"><div class="phicon">📺</div><div style="color:var(--text);font-weight:600;font-size:.9rem">Ready to stream</div><div style="font-size:.8rem">21,329 channels • 577 categories</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const portalEl=document.getElementById('portal'), userEl=document.getElementById('user'), passEl=document.getElementById('pass');
+  const loadBtn=document.getElementById('load'), useProxy=document.getElementById('useProxy'), proxyToggle=document.getElementById('proxyToggle');
+  const catEl=document.getElementById('cat'), listEl=document.getElementById('list'), catTitle=document.getElementById('catTitle'), countEl=document.getElementById('count'), searchEl=document.getElementById('search');
+  const stext=document.getElementById('stext'), dot=document.getElementById('dot'), status=document.getElementById('status');
+  const video=document.getElementById('video'), player=document.getElementById('player'), ptitle=document.getElementById('ptitle'), pover=document.getElementById('ov'), hamburger=document.getElementById('hamburger'), sidebar=document.getElementById('sidebar'), backdrop=document.getElementById('backdrop'), fsBtn=document.getElementById('fsBtn');
+
+  let categories=[], channels=[], currentCat=null, searchTerm='', playingId=null, hls=null, playToken=0, forceProxy=false, PAGE=200, visible=PAGE;
+
+  const PROXIES=[
+    {name:'local', build:u=>'proxy.php?url='+encodeURIComponent(u), local:true},
+    {name:'corsproxy.io', build:u=>'https://corsproxy.io/?url='+encodeURIComponent(u)},
+    {name:'allorigins', build:u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)}
+  ];
+  let pIdx=0;
+  function proxyName(){ return PROXIES[pIdx].name }
+  function buildProxy(u){ return PROXIES[pIdx].build(u)}
+  function isProxied(u){ return u.includes('corsproxy.io') || u.includes('allorigins.win') || u.includes('proxy.php?url='); }
+  function getUnproxied(u){
+    if(!isProxied(u)) return u;
+    try{ const i=u.indexOf('url='); if(i!==-1) return decodeURIComponent(u.slice(i+4)); }catch{}
+    return u;
+  }
+  function proxiedUrl(u){ if(!useProxy.checked && !forceProxy) return u; if(isProxied(u)) return u; return buildProxy(u)}
+  function setStatus(t,type='loading'){
+    stext.textContent=t;
+    dot.className='dot '+(type==='ok'?'g':type==='error'?'r':'y');
+    status.classList.toggle('loading',type==='loading');
+  }
+  function base(){ return portalEl.value.replace(/\/+$/,'')}
+
+  // mobile drawer
+  function closeDrawer(){ sidebar.classList.remove('open'); backdrop.classList.remove('show')}
+  hamburger.addEventListener('click',()=>{ const o=sidebar.classList.toggle('open'); backdrop.classList.toggle('show',o)});
+  backdrop.addEventListener('click',closeDrawer);
+
+  useProxy.addEventListener('change',()=>{
+    proxyToggle.classList.toggle('on',useProxy.checked);
+    if(playingId){
+      const ch=channels.find(c=>c.stream_id===playingId);
+      if(ch) play(ch);
+    }
+  });
+
+  async function fetchJson(url){
+    const viaProxy = useProxy.checked || forceProxy;
+    const attempts = viaProxy ? PROXIES.length : 1;
+    let lastErr;
+    for(let a=0;a<attempts;a++){
+      try{
+        const target = viaProxy ? buildProxy(url) : url;
+        const res=await fetch(target);
+        if(!res.ok){ const e=new Error('HTTP '+res.status); e.retryable=res.status===429||res.status>=500; throw e}
+        const text=await res.text();
+        try{ return JSON.parse(text)}catch{ const e=new Error('Invalid JSON (proxy error page)'); e.retryable=true; throw e}
+      }catch(e){
+        lastErr=e;
+        const retryable = e instanceof TypeError || e.retryable;
+        if(viaProxy && retryable && a<attempts-1){ pIdx=(pIdx+1)%PROXIES.length; setStatus('Retrying via '+proxyName()+'...','loading'); continue}
+        throw e;
+      }
+    }
+    throw lastErr;
+  }
+
+  // proxied HLS loader - fixed double-proxy and segment base
+  function HlsProxyLoader(){
+    return class{
+      constructor(c){this.config=c; this.xhr=null; this.stats={trequest:performance.now(),retry:0}; this.context=null; this.cb=null}
+      destroy(){ if(this.xhr) this.xhr.abort(); this.xhr=null}
+      abort(){ if(this.xhr) this.xhr.abort(); this.xhr=null}
+      load(ctx,cfg,cb){
+        this.context=ctx; this.cb=cb;
+        const orig=ctx.url, target=isProxied(orig)?orig:proxiedUrl(orig);
+        const xhr=new XMLHttpRequest(); this.xhr=xhr;
+        xhr.open('GET',target,true); xhr.responseType='text'; xhr.timeout=cfg.timeout||15000;
+        xhr.onreadystatechange=()=>{
+          if(xhr.readyState!==4) return;
+          const stats={...this.stats, aborted:false, loaded:xhr.responseText?xhr.responseText.length:0, total:xhr.responseText?xhr.responseText.length:0, tload:performance.now()};
+          if(xhr.status>=200 && xhr.status<300){
+            let t=xhr.responseText||'';
+            // Detect proxy JSON error like {"error":"Upstream returned HTTP 456"}
+            if(t.trim().startsWith('{') && t.includes('"error"')){
+              cb.onError({type:'networkError',details:'manifestLoadError',fatal:false,url:target,status:456},ctx,xhr);
+              return;
+            }
+            if(t.indexOf('#EXT')!==-1){
+              const baseUnproxied=getUnproxied(orig);
+              t=t.split('\n').map(l=>{
+                const tt=l.trim();
+                if(tt && !tt.startsWith('#')){
+                  try{
+                    const abs=new URL(tt, baseUnproxied).href;
+                    return proxiedUrl(abs);
+                  }catch{ return tt; }
+                }
+                return l;
+              }).join('\n');
+            } else if(t.length<50 || t.indexOf('#EXTM3U')!==0){
+              // empty or invalid manifest, treat as error to try next url
+              cb.onError({type:'networkError',details:'manifestLoadError',fatal:false,url:target,status:456},ctx,xhr);
+              return;
+            }
+            ctx.response={url:target,text:t,data:t};
+            cb.onSuccess(ctx.response,stats,ctx,xhr);
+          }else{
+            cb.onError({type:'networkError',details:'manifestLoadError',fatal:false,url:target,status:xhr.status},ctx,xhr);
+          }
+        };
+        xhr.ontimeout=()=>cb.onTimeout&&cb.onTimeout(this.stats,ctx,xhr);
+        xhr.onerror=()=>cb.onError({type:'networkError',details:'manifestLoadError',fatal:false,url:target,status:0},ctx,xhr);
+        xhr.send();
+      }
+    }
+  }
+
+  async function loadChannels(){
+    const b=base(), u=userEl.value.trim(), p=passEl.value.trim();
+    if(!b||!u||!p){ setStatus('Fill portal/user/pass','error'); return}
+    setStatus('Loading categories...','loading');
+    catEl.innerHTML='<li class="msg">Loading...</li>';
+    listEl.innerHTML='<li class="msg">Loading channels...</li>';
+    forceProxy=false; pIdx=0;
+    try{
+      const catUrl=`${b}/player_api.php?username=${u}&password=${p}&action=get_live_categories`;
+      const listUrl=`${b}/player_api.php?username=${u}&password=${p}&action=get_live_streams`;
+      categories=await fetchJson(catUrl);
+      if(!Array.isArray(categories)) categories=[];
+      setStatus(`Loading ${categories.length} categories, fetching channels...`,'loading');
+      channels=await fetchJson(listUrl);
+      if(!Array.isArray(channels)) channels=[];
+      // normalize: ensure stream_id is number
+      channels.forEach(c=>{ if(typeof c.stream_id==='string') c.stream_id=parseInt(c.stream_id,10); if(typeof c.category_id==='string') c.category_id=parseInt(c.category_id,10)});
+      currentCat=null; searchTerm=''; searchEl.value=''; visible=PAGE;
+      renderCats(); renderList();
+      const via = (useProxy.checked||forceProxy)?` via ${proxyName()}`:'';
+      setStatus(`Ready — ${channels.length.toLocaleString()} channels, ${categories.length} categories${via}`,'ok');
+    }catch(e){
+      console.error(e);
+      setStatus('Error: '+e.message,'error');
+      catEl.innerHTML=`<li class="err">❌ ${e.message}<br><small>Try enabling Proxy and reload</small></li>`;
+      listEl.innerHTML=`<li class="err">❌ Failed to load<br>${e.message}<br><small>CORS blocked? Enable Proxy checkbox.</small></li>`;
+    }
+  }
+
+  function renderCats(){
+    if(!categories.length){ catEl.innerHTML='<li class="msg">No categories</li>'; return}
+    const total=channels.length;
+    let html=`<li data-id="" class="${currentCat===null?'active':''}">📂 All Channels <span class="n">${total.toLocaleString()}</span></li>`;
+    categories.forEach(c=>{
+      const cnt=channels.filter(ch=>ch.category_id==c.category_id).length;
+      const act=currentCat==c.category_id?'active':'';
+      html+=`<li data-id="${c.category_id}" class="${act}">${esc(c.category_name)} <span class="n">${cnt.toLocaleString()}</span></li>`;
+    });
+    catEl.innerHTML=html;
+    catEl.querySelectorAll('li[data-id]').forEach(li=>{
+      li.addEventListener('click',()=>{
+        const id=li.dataset.id;
+        currentCat=id==='' ? null : parseInt(id,10);
+        visible=PAGE;
+        renderCats(); renderList(); closeDrawer();
+      });
+    });
+  }
+
+  function filtered(){
+    let out=channels;
+    if(currentCat!==null) out=out.filter(c=>c.category_id==currentCat);
+    if(searchTerm){
+      const q=searchTerm.toLowerCase();
+      out=out.filter(c=> (c.name||'').toLowerCase().includes(q));
+    }
+    out=out.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    return out;
+  }
+
+  function renderList(){
+    const f=filtered();
+    const name = currentCat===null ? 'Live Channels' : (categories.find(c=>c.category_id==currentCat)?.category_name || 'Live Channels');
+    catTitle.textContent=name;
+    countEl.textContent=`${f.length.toLocaleString()} ${f.length===1?'channel':'channels'}`;
+    if(!f.length){
+      listEl.innerHTML='<li class="msg">No channels in this category</li>';
+      return;
+    }
+    const slice=f.slice(0,visible);
+    let html='';
+    slice.forEach(ch=>{
+      const active=playingId===ch.stream_id?'playing':'';
+      const badIcon = ch.stream_icon && ch.stream_icon.includes('logo.protv.cc');
+      const icon = ch.stream_icon && !badIcon ? `<img src="${escAttr(ch.stream_icon)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : `<span style="width:32px;height:32px;display:grid;place-items:center;background:#0b0f16;border:1px solid var(--border);border-radius:6px;font-size:.8rem">📺</span>`;
+      html+=`<li data-id="${ch.stream_id}" class="${active}">${icon}<span style="flex:1;min-width:0">${esc(ch.name)}<span class="sub">ID ${ch.stream_id}</span></span></li>`;
+    });
+    if(f.length>visible) html+=`<li id="more"><button id="loadMore">Load more (${(f.length-visible).toLocaleString()} remaining)</button></li>`;
+    listEl.innerHTML=html;
+    listEl.querySelectorAll('li[data-id]').forEach(li=>{
+      li.addEventListener('click',()=>{
+        const id=parseInt(li.dataset.id,10);
+        const ch=channels.find(c=>c.stream_id===id);
+        if(ch) play(ch);
+      });
+    });
+    const lm=document.getElementById('loadMore');
+    if(lm) lm.addEventListener('click',()=>{ visible+=PAGE; renderList(); });
+  }
+
+  function esc(s){ return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function escAttr(s){ return (s||'').replace(/"/g,'&quot;')}
+
+  let lastUrl='';
+  function play(ch){
+    const b=base(), u=userEl.value.trim(), p=passEl.value.trim();
+    playingId=ch.stream_id;
+    renderList();
+    const token=++playToken;
+    player.classList.remove('idle');
+    ptitle.textContent=ch.name;
+    pover.textContent='▶ '+ch.name;
+    setStatus('Playing: '+ch.name,'ok');
+    lastUrl=ch.name;
+
+    // teardown
+    if(hls){ hls.destroy(); hls=null}
+    video.pause(); video.removeAttribute('src'); video.load();
+
+    const id=ch.stream_id;
+    // primary HLS url, fallback alternatives - keep type info
+    const urls=[
+      {url:`${b}/live/${u}/${p}/${id}.m3u8`, type:'hls'},
+      {url:`${b}/hls/${u}/${p}/${id}.m3u8`, type:'hls'},
+      {url:`${b}/live/${u}/${p}/${id}.ts`, type:'native'}
+    ];
+    let idx=0;
+    let viaProxy = useProxy.checked || forceProxy;
+    let done=false;
+
+    function eff(u){ return viaProxy ? proxiedUrl(u) : u }
+
+    function next(){
+      if(token!==playToken || done) return;
+      if(idx>=urls.length){
+        if(!viaProxy){
+          viaProxy=true; forceProxy=true; useProxy.checked=true; proxyToggle.classList.add('on');
+          idx=0; setStatus('Retrying via local proxy...','loading');
+          next(); return;
+        }
+        // All sources failed — 456 is provider block, show VLC fallback
+        const direct=`${b}/live/${u}/${p}/${id}.m3u8`;
+        done=true;
+        setStatus('Failed — provider returned 456/403 (blocked). Try VLC or another channel','error');
+        pover.textContent='❌ '+ch.name+' — 456 Blocked (see console). VLC URL: '+direct;
+        console.warn('VLC URL:',direct);
+        // show copyable link below player
+        pover.title='Click to copy VLC URL';
+        pover.style.cursor='pointer';
+        pover.onclick=()=>{ navigator.clipboard.writeText(direct).then(()=>setStatus('VLC URL copied','ok')).catch(()=>prompt('Copy VLC URL:',direct)); };
+        // diagnostic: fetch account info to show active connections / expiry
+        fetch(`${b}/player_api.php?username=${u}&password=${p}`).then(r=>r.json()).then(a=>{
+          const ui=(a&&a.user_info)||{};
+          const si=(a&&a.server_info)||{};
+          const active=ui.active_cons, max=ui.max_connections;
+          const line=`Connections ${active}/${max} • Status:${ui.status||'?'} • Exp:${ui.exp_date?new Date(ui.exp_date*1000).toLocaleDateString():'?'}`;
+          console.warn('[account]',line);
+          setStatus('Failed 456. '+line+(active>=max?' — connection in use, wait 60-120s or contact provider':' — likely IP blocked'),'error');
+        }).catch(()=>{});
+        return;
+      }
+      const item=urls[idx++]; const raw=item.url; const isHls=item.type==='hls';
+      const target=eff(raw);
+      console.log('[play] trying', viaProxy?'(proxy '+proxyName()+')':'direct', target);
+      if(isHls && Hls.isSupported()){
+        const cfg={ enableWorker:true, lowLatencyMode:false, backBufferLength:90, maxBufferLength:30 };
+        if(viaProxy) cfg.loader=HlsProxyLoader();
+        let inst;
+        try{
+          inst=new Hls(cfg); hls=inst;
+          inst.loadSource(target);
+          inst.attachMedia(video);
+        }catch(err){ console.warn('[hls] init failed',err); hls=null; setTimeout(next,10); return; }
+        inst.on(Hls.Events.MANIFEST_PARSED,()=>{ if(token!==playToken||hls!==inst) return; video.play().catch(()=>{}) });
+        inst.on(Hls.Events.ERROR,(e,d)=>{
+          if(token!==playToken||hls!==inst) return;
+          if(d.fatal){
+            const code=(d.data&&d.data.status)||d.status||'?';
+            console.warn('[hls fatal]',d.type,d.details,'status',code,'url',target);
+            if(code===456 || code===403){
+              setStatus('Provider blocked '+code+' for '+ch.name,'error');
+            }
+            // rotate proxy for next attempt if we are in proxy mode
+            if(viaProxy && PROXIES.length>1){
+              pIdx=(pIdx+1)%PROXIES.length;
+              console.log('Rotating proxy to',proxyName());
+            }
+            hls=null; try{ inst.destroy(); }catch(_){}
+            setTimeout(next,300);
+          }
+        });
+      }else if(isHls && video.canPlayType('application/vnd.apple.mpegurl')){
+        video.src=target; video.play().catch(()=>next());
+      }else{
+        // native TS/MP4
+        video.src=target; video.load();
+        const onErr=()=>{ video.removeEventListener('error',onErr); if(token===playToken) next(); };
+        video.addEventListener('error',onErr,{once:true});
+        video.play().catch(()=>{});
+        setTimeout(()=>{ if(token===playToken && video.error) next(); },4000);
+      }
+    }
+    next();
+    // scroll player into view on mobile
+    if(window.innerWidth<768) player.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  searchEl.addEventListener('input',()=>{
+    searchTerm=searchEl.value.trim();
+    visible=PAGE;
+    renderList();
+  });
+
+  loadBtn.addEventListener('click',loadChannels);
+  [portalEl,userEl,passEl].forEach(el=>el.addEventListener('keydown',e=>{ if(e.key==='Enter') loadChannels()}));
+  fsBtn.addEventListener('click',()=>{
+    const el=document.getElementById('wrap');
+    if(!document.fullscreenElement){ (el.requestFullscreen||el.webkitRequestFullscreen)?.call(el)} else { (document.exitFullscreen||document.webkitExitFullscreen)?.call(document)}
+  });
+  video.addEventListener('error',()=>{
+    if(!hls && video.currentSrc) console.warn('video error',video.error);
+  });
+
+  // auto load
+  window.addEventListener('load',()=> setTimeout(loadChannels,300));
+})();
+</script>
+</body>
+</html>

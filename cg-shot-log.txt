@@ -1,0 +1,105 @@
+
+[MegahEnt] target URL: http://localhost:5173/live
+(electron) 'session.loadExtension' is deprecated and will be removed. Please use 'session.extensions.loadExtension' instead.
+[MegahEnt] uBlock Origin Lite ENABLED (2026.825.1619)
+[MegahEnt] custom streaming-ad filters loaded ( 43 rules )
+[12848:0827/083617.678:ERROR:extensions\browser\extensions_browser_client.cc:92] Extension Error:
+  OTR:     false
+  Level:   2
+  Source:  chrome-extension://blkbgfolegdigmdnfhnlnbloifoghnid/js/background.js
+  Message: Uncaught TypeError: Cannot read properties of undefined (reading 'onRemoved')
+  ID:      blkbgfolegdigmdnfhnlnbloifoghnid
+  Type:    RuntimeError
+  Context: chrome-extension://blkbgfolegdigmdnfhnlnbloifoghnid/js/background.js
+  Stack Trace: 
+    {
+      Line:     882
+      Column:   1
+      URL:      chrome-extension://blkbgfolegdigmdnfhnlnbloifoghnid/js/background.js
+      Function: (anonymous function)
+    }
+[12848:0827/083617.679:ERROR:extensions\browser\extensions_browser_client.cc:92] Extension Error:
+  OTR:     false
+  Level:   1
+  Source:  manifest.json
+  Message: Service worker registration failed. Status code: 15
+  ID:      blkbgfolegdigmdnfhnlnbloifoghnid
+  Type:    ManifestError
+[MegahEnt] ad blocking ENABLED ??? lists: 19 (base: 17 | central: 1 | custom: 1)
+[MegahEnt] network debug tap ON ??? iframe request domains will be logged
+(electron) 'console-message' arguments are deprecated and will be removed. Please use Event<WebContentsConsoleMessageEventParams> object instead.
+[MegahEnt] loaded ??? http://localhost:5173/live
+[MegahEnt] UA ends with: "43.4.1 Safari/537.36 MegahEntDesktop/1.0"
+[renderer] Allow attribute will take precedence over 'allowfullscreen'. (http://localhost:5173/node_modules/.vite/deps/chunk-TYILIMWK.js?v=acc1ffe6:1270)
+[renderer] Uncaught SecurityError: Failed to read a named property 'addEventListener' from 'Window': Blocked a frame with origin "https://www.nontongo.win" from accessing a frame with origin "http://localhost:5173".  The frame requesting access has a protocol of "https", the frame being accessed has a protocol of "http". Protocols must match. (https://cdn.jsdelivr.net/npm/disable-devtool@latest:1)
+[renderer] Uncaught TypeError: Cannot read properties of null (reading 'appendChild') (https://pl15276348.effectivegatecpm.com/4e/de/4b/4ede4b4e8bde532c06aa4b3a79138b02.js:1)
+[12848:0827/083633.246:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.246:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.246:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.249:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.253:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.254:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[renderer] Permissions policy violation: bluetooth is not allowed in this document. (https://c.adsco.re/:87)
+[12848:0827/083633.259:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.260:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.264:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.264:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[renderer] com.microsoft.playready.recommendation: Internal testing is highly recommended prior to enabling PlayReady playback on Windows. Failure to do so may cause application instability or playback errors.
+
+Before generating a request, setServerCertificate() must be called with a valid server certificate. Otherwise, generateRequest() could fail. (https://c.adsco.re/:91)
+[12848:0827/083633.564:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.564:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.572:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083633.572:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[MegahEnt] POPUP BLOCKED ??? https://spendsdetachment.com/qg4th4cnh?jca=44&refer=https%3A%2F%2Fwww.nontongo.win%2Flivetv%2F269&kw=%5B%22a%22%2C%22spo
+[MegahEnt] POPUP BLOCKED ??? https://s.click.aliexpress.com/e/_oFZMHdS?af=1787808992100000KE66000a9efc2e878aI_PS&dp=8611582-3775522587-4269441498_861
+[MegahEnt] POPUP BLOCKED ??? https://luugy.com/4/6758325?dovr=true&os=windows&os_version=10.0.0&is_mobile=false&browser_version=150.0.7871.224
+[renderer] Uncaught SecurityError: Failed to read a named property 'addEventListener' from 'Window': Blocked a frame with origin "https://nontongo.win" from accessing a frame with origin "https://www.nontongo.win". Protocols, domains, and ports must match. (https://cdn.jsdelivr.net/npm/disable-devtool@latest:1)
+[renderer] Access to link element resource at 'https://4.adsco.re/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. (https://dlstreams.st/stream/stream-269.php:0)
+[renderer] Access to link element resource at 'https://6.adsco.re/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. (https://dlstreams.st/stream/stream-269.php:0)
+[renderer] Access to link element resource at 'https://4.adsco.re:2087/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. (https://dlstreams.st/stream/stream-269.php:0)
+[renderer] Access to link element resource at 'https://6.adsco.re:2087/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. (https://dlstreams.st/stream/stream-269.php:0)
+[renderer] Uncaught TypeError: Cannot read properties of null (reading 'appendChild') (https://pl29569919.effectivecpmnetwork.com/1f/b1/b0/1fb1b0ba3934bee0fb513f60318219c8.js:1)
+[12848:0827/083644.784:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.784:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.784:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.787:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.797:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.797:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.800:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.800:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[renderer] Permissions policy violation: bluetooth is not allowed in this document. (https://c.adsco.re/:87)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: accelerometer is not allowed in this document. (https://c.adsco.re/:101)
+[renderer] The deviceorientation events are blocked by permissions policy. See https://github.com/w3c/webappsec-permissions-policy/blob/master/features.md#sensor-features (https://c.adsco.re/:101)
+[renderer] Permissions policy violation: accelerometer is not allowed in this document. (https://c.adsco.re/:102)
+[renderer] The devicemotion events are blocked by permissions policy. See https://github.com/w3c/webappsec-permissions-policy/blob/master/features.md#sensor-features (https://c.adsco.re/:102)
+[12848:0827/083644.809:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083644.809:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[renderer] Permissions policy violation: encrypted-media is not allowed in this document. (https://c.adsco.re/:91)
+[renderer] Encrypted Media access has been blocked because of a Feature Policy applied to the current document. See https://crbug.com/414348233 for more details. (https://c.adsco.re/:91)
+[12848:0827/083645.032:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083645.032:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083645.050:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[12848:0827/083645.051:ERROR:content\browser\site_info.cc:912] Check failed: origin.GetTupleOrPrecursorTupleIfOpaque().IsValid(). 
+[renderer] Access to fetch at 'https://4.adsco.re/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. Have the server send the header with a valid value. (https://dlstreams.st/stream/stream-269.php:0)
+[renderer] Access to fetch at 'https://4.adsco.re:2087/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. Have the server send the header with a valid value. (https://dlstreams.st/stream/stream-269.php:0)
+[renderer] Access to fetch at 'https://6.adsco.re/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. Have the server send the header with a valid value. (https://dlstreams.st/stream/stream-269.php:0)
+[renderer] Access to fetch at 'https://6.adsco.re:2087/' from origin 'https://dlstreams.st' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://www.nontongo.win' that is not equal to the supplied origin. Have the server send the header with a valid value. (https://dlstreams.st/stream/stream-269.php:0)
+[MegahEnt] POPUP BLOCKED ??? https://mks98.com/link2?browser=Unknown%20Windows%20App%20-%20WebKit%20Engine&geo=KE&os=Windows&osversion=10.0&var=28423
+[MegahEnt] screenshot saved ??? C:\xampp\htdocs\code\iptv\cinema hub\ui-ublock-livetv.png

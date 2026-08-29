@@ -1,0 +1,13 @@
+
+> MegahEnt-desktop@0.1.0 start
+> electron .
+
+
+[MegahEnt] target URL: http://localhost:5173
+[MegahEnt] central list unreachable, skipping: http://localhost:8090/cineglass-filters.txt (HTTP 404)
+[MegahEnt] custom streaming-ad filters loaded ( 43 rules )
+[MegahEnt] ad blocking ENABLED — lists: 18 (base: 17 | central: 0 | custom: 1)
+[MegahEnt] network debug tap ON — iframe request domains will be logged
+(electron) 'console-message' arguments are deprecated and will be removed. Please use Event<WebContentsConsoleMessageEventParams> object instead.
+[MegahEnt] loaded → http://localhost:5173/
+[MegahEnt] UA ends with: "43.4.1 Safari/537.36 MegahEntDesktop/1.0"

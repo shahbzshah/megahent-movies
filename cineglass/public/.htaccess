@@ -1,0 +1,30 @@
+# CineGlass / MegahEnt — cPanel Apache config
+# 1) PHP proxies answer the API paths the app calls
+# 2) Everything else falls back to index.html (SPA routing)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # TMDB proxy: /api/tmdb?path=/trending/movie/week -> tmdb-proxy.php
+  RewriteRule ^api/tmdb/?$ tmdb-proxy.php [QSA,L]
+
+  # Xtream portal proxy: /xtream/player_api.php?portal=... -> xtream-proxy.php
+  RewriteRule ^xtream/player_api\.php$ xtream-proxy.php [QSA,L]
+
+  # SPA fallback — never 404 on direct URLs like /details/movie-123
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+</IfModule>
