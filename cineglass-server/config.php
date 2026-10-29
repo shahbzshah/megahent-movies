@@ -12,22 +12,30 @@
 // (TCP), because the PHP build's socket path does not match MariaDB's
 // there — that override lives in the Render service env, not here.
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_PORT', getenv('DB_PORT') ?: '3306');
 define('DB_NAME', getenv('DB_NAME') ?: 'cineglass');
 define('DB_USER', getenv('DB_USER') ?: 'cineglass');
 define('DB_PASS', getenv('DB_PASS') ?: '');
+// DB_SSL_CA: path to a CA certificate file, only for hosts that require
+// TLS (e.g. TiDB Cloud). Unset = plain connection, exactly as today.
+define('DB_SSL_CA', getenv('DB_SSL_CA') ?: '');
 
 /** PDO connection (singleton). */
 function db(): PDO {
   static $pdo = null;
   if ($pdo === null) {
+    $options = [
+      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ];
+    if (DB_SSL_CA !== '') {
+      $options[PDO::MYSQL_ATTR_SSL_CA] = DB_SSL_CA;
+    }
     $pdo = new PDO(
-      'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+      'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4',
       DB_USER,
       DB_PASS,
-      [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-      ]
+      $options
     );
   }
   return $pdo;
