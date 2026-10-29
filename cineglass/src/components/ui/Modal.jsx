@@ -11,6 +11,13 @@ const SIZES = {
 
 export default function Modal({ open, onClose, title, size = 'md', children }) {
   const panelRef = useRef(null)
+  // onClose is a fresh inline function on every parent render (every
+  // keystroke in a form inside the modal). Holding the latest one in a ref
+  // keeps the focus effect below from re-running on each keystroke — the
+  // old behaviour re-focused the first focusable element (the Close button)
+  // after every letter, which dropped the input and closed the keyboard.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!open) return
@@ -20,7 +27,7 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
 
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
-        onClose()
+        onCloseRef.current()
         return
       }
       if (e.key !== 'Tab' || !panel) return
@@ -44,7 +51,7 @@ export default function Modal({ open, onClose, title, size = 'md', children }) {
       document.body.style.overflow = ''
       previouslyFocused?.focus?.()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
