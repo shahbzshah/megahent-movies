@@ -8,7 +8,7 @@
  * On success the password is updated, the token row is deleted, and
  * this file deletes itself. Remove from git right after use.
  */
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php';
 // Start the session BEFORE any output (same reason as login.php:
 // csrf_token() is rendered mid-page).
 ensure_session();
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="logo">MEGAH<span>ENT</span></div>
     <p class="sub">Reset admin password</p>
     <?php if ($done): ?>
-      <div class="ok">Password changed. This reset page no longer works. <a href="login.php">Sign in with the new password.</a></div>
+      <div class="ok">Password changed. This reset page no longer works. <a href="admin/login.php">Sign in with the new password.</a></div>
     <?php else: ?>
       <form method="post" autocomplete="off">
         <label for="code">One-time code</label>
