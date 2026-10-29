@@ -1,0 +1,8 @@
+# Keep MariaDB inside Render's 512MB free-tier instance.
+[mysqld]
+innodb_buffer_pool_size=64M
+innodb_log_file_size=16M
+max_connections=20
+table_open_cache=64
+performance_schema=OFF
+skip-name-resolve

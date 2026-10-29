@@ -1,0 +1,22 @@
+# CineGlass on Render (free tier): Docker image with PHP + Apache +
+# in-container MariaDB. Vercel cannot run the PHP server code, which is
+# why this app lives here instead of on Vercel.
+services:
+  - type: web
+    name: megahent-cineglass
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: DB_HOST
+        value: localhost
+      - key: DB_NAME
+        value: cineglass
+      - key: DB_USER
+        value: cineglass
+      - key: DB_PASS
+        generateValue: true
+      - key: TMDB_API_KEY
+        sync: false

@@ -1,13 +1,16 @@
 <?php
 /**
  * MegahEnt server configuration.
- * EDIT THESE VALUES when deploying to your shared host
- * (hosting provider gives you the DB name/user/password).
+ * Values come from the environment when set (Render/Docker deploy sets
+ * DB_HOST, DB_NAME, DB_USER and DB_PASS; DB_PASS is a generated value
+ * there, never committed). The fallbacks below are for a local/shared
+ * host where the file itself is edited instead — on a shared host the
+ * provider gives you the DB name/user/password.
  */
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'cineglass');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'cineglass');
+define('DB_USER', getenv('DB_USER') ?: 'cineglass');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 
 /** PDO connection (singleton). */
 function db(): PDO {
