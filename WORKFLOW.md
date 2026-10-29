@@ -50,7 +50,8 @@ body{ background:#050505; color:#e5e2e1 }
 **`api/tmdb.js`** (Vercel Function - replaces `tmdb-proxy.php`):
 ```js
 export default async (req,res)=>{
-  const key = process.env.TMDB_API_KEY || '6d63e69e0427d5ee4820042375e2b762';
+  const key = process.env.TMDB_API_KEY;
+  if (!key) return res.status(500).json({error:'TMDB_API_KEY not configured'});
   const path = req.query.path; // e.g. /trending/movie/week
   if(!path || !path.startsWith('/')) return res.status(400).json({error:'Invalid path'});
   const url = `https://api.themoviedb.org/3${path}?api_key=${key}&language=en-US`;
@@ -129,7 +130,7 @@ npx serve dist       # local smoke test: no 404 on refresh?
 2.  Push to GitHub
 3.  vercel.com -> Add New Project -> Import GitHub repo
 4.  Framework: **Vite**, Build: `npm run build`, Output: `dist`
-5.  Env var: `TMDB_API_KEY=6d63e69e0427d5ee4820042375e2b762`
+5.  Env var: `TMDB_API_KEY=<your-new-key-after-rotation>`
 6.  Deploy -> live URL
 7.  Test: direct link `.../details/movie-123` refresh -> should not 404 (vercel.json)
 8.  Test: `api/tmdb?path=/trending/movie/week` returns JSON

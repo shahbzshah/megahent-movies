@@ -20,7 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$apiKey = '6d63e69e0427d5ee4820042375e2b762';
+$apiKey = getenv('TMDB_API_KEY') ?: '';
+if ($apiKey === '') {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'TMDB_API_KEY not configured']);
+    exit;
+}
 $base   = 'https://api.themoviedb.org/3';
 
 $path = isset($_GET['path']) ? trim($_GET['path']) : '';

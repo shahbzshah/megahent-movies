@@ -1,5 +1,5 @@
 // Xtream Codes portal client.
-// Portal credentials: device defaults below; users can override them in
+// Portal credentials: none are bundled. The owner enters them in
 // Settings (stored in localStorage). Every request tries the portal DIRECTLY
 // first (it sends Access-Control-Allow-Origin: *) and falls back to the
 // same-origin proxy for panels without CORS or hosts blocking outbound :8080.
@@ -7,9 +7,11 @@ const PROXY_PATH = '/xtream/player_api.php'
 const API_TIMEOUT_MS = 30000
 
 export const DEFAULT_PORTAL = {
-  url: 'http://gadareurop89.xyz:8080',
-  user: 'mello',
-  pass: 'mello1234',
+  // No credentials ship in the code. Enter the portal URL, username and
+  // password in Settings; they are stored only in this device's localStorage.
+  url: '',
+  user: '',
+  pass: '',
 }
 
 function getCreds(settings) {
@@ -20,13 +22,16 @@ function getCreds(settings) {
   }
 }
 
-export function portalConfigured() {
-  // Device defaults always provide a working portal.
-  return true
+export function portalConfigured(settings) {
+  const { url, user, pass } = getCreds(settings)
+  return Boolean(url && user && pass)
 }
 
 async function api(settings, params) {
   const { url, user, pass } = getCreds(settings)
+  if (!url || !user || !pass) {
+    throw new Error('Portal not configured: enter the portal URL, username and password in Settings')
+  }
   const qs = new URLSearchParams({ username: user, password: pass, ...params })
   const attempts = [
     `${url}/player_api.php?${qs}`,

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../store/useStore'
 import Modal from '../components/ui/Modal'
 import Toggle from '../components/ui/Toggle'
-import { fetchPortalInfo, DEFAULT_PORTAL } from '../lib/xtream'
+import { fetchPortalInfo } from '../lib/xtream'
 const QUALITIES = ['Auto', '4K UHD', '1080p', '720p']
 const SUBTITLE_LANGS = ['Off', 'English', 'Spanish', 'French', 'German', 'Arabic']
 
@@ -60,6 +60,17 @@ export default function Settings() {
   const historyCount = useStore((s) => Object.keys(s.progress).length)
 
   const [confirm, setConfirm] = useState(null)
+  const [portalTest, setPortalTest] = useState(null)
+
+  const testPortal = async () => {
+    setPortalTest({ status: 'testing', message: 'Testing…' })
+    try {
+      const result = await fetchPortalInfo(settings)
+      setPortalTest(result)
+    } catch (e) {
+      setPortalTest({ ok: false, message: e.message || 'Portal test failed' })
+    }
+  }
 
 
   return (
@@ -108,6 +119,41 @@ export default function Settings() {
           <Section title="Content" icon="dns">
             <Row label="English content only" hint="Hides non-English categories, channels and titles, plus adult content">
               <Toggle checked={settings.englishOnly !== false} onChange={(v) => updateSetting('englishOnly', v)} label="English content only" />
+            </Row>
+          </Section>
+
+          <Section title="IPTV Portal" icon="live_tv">
+            <Row label="Portal URL" hint="Stored only on this device, never in the code">
+              <input
+                type="url"
+                value={settings.portalUrl || ''}
+                placeholder="http://portal-host:8080"
+                onChange={(e) => updateSetting('portalUrl', e.target.value)}
+                className="bg-surface-container/60 border border-white/10 rounded-full py-2 px-4 font-label-md text-label-md text-on-surface w-56 md:w-72 focus:outline-none focus:ring-2 focus:ring-secondary shrink-0"
+              />
+            </Row>
+            <Row label="Portal username" hint="Your Xtream username">
+              <input
+                type="text"
+                value={settings.portalUser || ''}
+                autoComplete="off"
+                onChange={(e) => updateSetting('portalUser', e.target.value)}
+                className="bg-surface-container/60 border border-white/10 rounded-full py-2 px-4 font-label-md text-label-md text-on-surface w-56 md:w-72 focus:outline-none focus:ring-2 focus:ring-secondary shrink-0"
+              />
+            </Row>
+            <Row label="Portal password" hint="Your Xtream password">
+              <input
+                type="password"
+                value={settings.portalPass || ''}
+                autoComplete="off"
+                onChange={(e) => updateSetting('portalPass', e.target.value)}
+                className="bg-surface-container/60 border border-white/10 rounded-full py-2 px-4 font-label-md text-label-md text-on-surface w-56 md:w-72 focus:outline-none focus:ring-2 focus:ring-secondary shrink-0"
+              />
+            </Row>
+            <Row label="Test connection" hint={portalTest ? portalTest.message || (portalTest.ok ? 'Connected.' : 'Connection failed.') : 'Checks the portal credentials above'}>
+              <button onClick={testPortal} className="px-5 py-2 rounded-full glass-panel font-label-md text-label-md text-on-surface hover:bg-white/10 transition-colors shrink-0">
+                Test
+              </button>
             </Row>
           </Section>
 

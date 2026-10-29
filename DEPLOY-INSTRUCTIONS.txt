@@ -42,7 +42,8 @@ VERIFY AFTER DEPLOY
 3. https://yourdomain.com/api/tmdb?path=/trending/movie/week
                                                 -> JSON from TMDB
 4. Live TV page                                 -> English categories load
-5. https://yourdomain.com/xtream/player_api.php?portal=http://gadareurop89.xyz:8080&username=mello&password=mello1234
+5. https://yourdomain.com/xtream/player_api.php?portal=<YOUR_PORTAL_URL>&username=<YOUR_USERNAME>&password=<YOUR_PASSWORD>
+                                                -> JSON auth response
                                                 -> JSON auth response
 
 NOTE
