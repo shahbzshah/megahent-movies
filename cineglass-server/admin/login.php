@@ -1,5 +1,10 @@
 <?php
 require_once __DIR__ . '/../config.php';
+// Start the session BEFORE any output: csrf_token() is rendered mid-page,
+// and session_start() after output has begun cannot set the session cookie,
+// which made every login fail CSRF validation. (index.php/logout.php
+// already start it up top via require_admin()/ensure_session().)
+ensure_session();
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
