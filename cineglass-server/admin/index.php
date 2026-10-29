@@ -38,6 +38,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $flash = $on === '1' ? 'Scanner notifications enabled.' : 'Scanner notifications hidden.';
       break;
 
+    case 'save_tmdb_key':
+      // TMDB v3 API keys are 32 hex characters. The key is stored in the
+      // database and never shown back anywhere in the panel.
+      $key = trim($_POST['tmdb_api_key'] ?? '');
+      if ($key === '') {
+        $flash = 'Paste a TMDB API key first.';
+      } elseif (!preg_match('/^[a-f0-9]{32}$/i', $key)) {
+        $flash = 'That does not look like a TMDB API key (v3) — it should be 32 letters and numbers. Nothing was saved.';
+      } else {
+        $st = $pdo->prepare('INSERT INTO settings (skey, svalue) VALUES (?, ?)
+                             ON DUPLICATE KEY UPDATE svalue = VALUES(svalue)');
+        $st->execute(['tmdb_api_key', $key]);
+        $flash = 'TMDB key saved — titles load within seconds.';
+      }
+      break;
+
+    case 'clear_tmdb_key':
+      $pdo->prepare('DELETE FROM settings WHERE skey = ?')->execute(['tmdb_api_key']);
+      $flash = 'Saved TMDB key removed. The app now uses the server environment key if one is set.';
+      break;
+
     case 'announcement_add':
       $message = trim($_POST['message'] ?? '');
       $icon    = trim($_POST['icon'] ?: 'campaign');
@@ -151,6 +172,11 @@ $collections   = $pdo->query('SELECT * FROM collections ORDER BY sort_order ASC,
 $itemsStmt     = $pdo->prepare('SELECT * FROM collection_items WHERE collection_id = ? ORDER BY sort_order ASC, id ASC');
 
 $liveTvEnabled = ($settings['livetv_enabled'] ?? '1') === '1';
+
+// TMDB key: the server environment key (Render) wins when set; otherwise
+// the key saved in Settings is used. The value itself is never rendered.
+$tmdbEnvSet = getenv('TMDB_API_KEY') !== false && getenv('TMDB_API_KEY') !== '';
+$tmdbDbSet  = !empty($settings['tmdb_api_key']);
 
 // Dashboard stats (fail soft if scanner tables are missing)
 $stats = ['pending_jobs' => 0, 'dead_titles' => 0, 'scanned' => 0];
@@ -570,6 +596,36 @@ $NAV = [
   <?php elseif ($view === 'settings'): ?>
 
     <h1>Settings</h1>
+    <section>
+      <h2>TMDB <?= $tmdbEnvSet ? '<span class="pill brand">ENVIRONMENT KEY</span>' : ($tmdbDbSet ? '<span class="pill on">CONFIGURED</span>' : '<span class="pill off">NOT CONFIGURED</span>') ?></h2>
+      <p class="hint">
+        The key that loads movie and TV titles, posters and details. Paste your
+        <b>rotated</b> TMDB API key (v3) here — the old key is in the public
+        git history and must not be reused. The key is stored in the database
+        and is never shown back. A key set in the server environment takes
+        precedence over the one saved here.
+      </p>
+      <p class="hint">
+        Status: <?= $tmdbEnvSet ? 'configured from the server environment — a key saved here is ignored while that is set.' : ($tmdbDbSet ? 'configured from the key saved here.' : 'not configured — titles, posters and details cannot load.') ?>
+      </p>
+      <form method="post">
+        <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+        <input type="hidden" name="action" value="save_tmdb_key">
+        <input type="hidden" name="view" value="settings">
+        <label>TMDB API key (v3, 32 characters)</label>
+        <input type="password" name="tmdb_api_key" placeholder="Paste the rotated key here" autocomplete="off">
+        <p style="margin-top:16px"><button type="submit">Save TMDB key</button></p>
+      </form>
+      <?php if ($tmdbDbSet): ?>
+      <form method="post" style="margin-top:10px">
+        <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+        <input type="hidden" name="action" value="clear_tmdb_key">
+        <input type="hidden" name="view" value="settings">
+        <button class="small danger" type="submit">Remove saved key</button>
+      </form>
+      <?php endif; ?>
+    </section>
+
     <section>
       <h2>Scanner notifications <?= $scannerToasts ? '<span class="pill on">ON</span>' : '<span class="pill off">OFF</span>' ?></h2>
       <p class="hint">

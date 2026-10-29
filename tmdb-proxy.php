@@ -20,7 +20,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Key resolution: the TMDB_API_KEY environment variable wins when set;
+// otherwise fall back to the key saved in Admin → Settings (settings
+// table, skey tmdb_api_key). The include is guarded so the proxy still
+// works from the environment key alone if the server code is absent.
+if (file_exists(__DIR__ . '/cineglass-server/config.php')) {
+    require_once __DIR__ . '/cineglass-server/config.php';
+}
+
 $apiKey = getenv('TMDB_API_KEY') ?: '';
+if ($apiKey === '' && function_exists('db')) {
+    try {
+        $st = db()->prepare('SELECT svalue FROM settings WHERE skey = ?');
+        $st->execute(['tmdb_api_key']);
+        $row = $st->fetch();
+        $apiKey = $row['svalue'] ?? '';
+    } catch (Throwable $e) {
+        $apiKey = '';
+    }
+}
 if ($apiKey === '') {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'TMDB_API_KEY not configured']);
