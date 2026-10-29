@@ -7,7 +7,10 @@
  * host where the file itself is edited instead — on a shared host the
  * provider gives you the DB name/user/password.
  */
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+// 127.0.0.1 (TCP) on purpose: 'localhost' makes PDO use a Unix socket
+// whose path differs between the PHP build and MariaDB, which broke
+// every DB endpoint on the first Render deploy.
+define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 define('DB_NAME', getenv('DB_NAME') ?: 'cineglass');
 define('DB_USER', getenv('DB_USER') ?: 'cineglass');
 define('DB_PASS', getenv('DB_PASS') ?: '');

@@ -11,7 +11,7 @@ services:
     healthCheckPath: /
     envVars:
       - key: DB_HOST
-        value: localhost
+        value: 127.0.0.1
       - key: DB_NAME
         value: cineglass
       - key: DB_USER
