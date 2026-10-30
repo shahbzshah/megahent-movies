@@ -4,8 +4,7 @@
 require_once __DIR__ . '/../config.php';
 ensure_session();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  csrf_check();
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && csrf_check()) {
   $_SESSION = [];
   $params = session_get_cookie_params();
   setcookie(session_name(), '', time() - 42000, [

@@ -65,7 +65,6 @@ export default function Player() {
   const loadState = useStore((s) => s.loadState)
   const load = useStore((s) => s.load)
   const markStarted = useStore((s) => s.markStarted)
-  const showToast = useStore((s) => s.showToast)
 
   const [source, setSource] = useState({ status: 'probing', url: '' })
   // TMDB titles: VidAPI/VAPlayer primary, NontonGo fallback.
@@ -261,7 +260,6 @@ export default function Player() {
     if (providerRef.current === 'vidapi') {
       providerRef.current = 'nontongo'
       setTmdbProvider('nontongo')
-      showToast('Primary source unavailable — switched to fallback', 'swap_horiz')
       resolveSource()
     } else {
       setSource({ status: 'failed', url: '' })
@@ -280,17 +278,6 @@ export default function Player() {
     markStarted(progressKey)
   }, [progressKey])
 
-  useEffect(() => {
-    if (source.status !== 'ready' || !activeItem) return
-    if (liveMode) {
-      showToast(`Now playing: ${xtreamId ? xtreamName : hlsName}`, 'live_tv')
-    } else if (isEpisode) {
-      showToast(`Playing: ${activeItem.title} S${season}E${episode}`, 'play_circle')
-    } else {
-      showToast(`Playing: ${activeItem.title}`, 'play_circle')
-    }
-  }, [source.url])
-
   // Live HLS (Xtream + iptv-org) — Chromium plays them through hls.js, Safari natively.
   useEffect(() => {
     if (!isLive || source.status !== 'ready' || !source.url) return
@@ -302,9 +289,6 @@ export default function Player() {
         hls = new Hls({ enableWorker: true, lowLatencyMode: true })
         hls.loadSource(source.url)
         hls.attachMedia(videoRef.current)
-        hls.on(Hls.Events.ERROR, (_e, data) => {
-          if (data.fatal) showToast('Live stream interrupted', 'wifi_off')
-        })
         videoRef.current.play().catch(() => {})
       } else {
         videoRef.current.src = source.url

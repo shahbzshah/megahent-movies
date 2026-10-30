@@ -4,7 +4,6 @@ import SideNav from './components/layout/SideNav'
 import TopNav from './components/layout/TopNav'
 import BottomNav from './components/layout/BottomNav'
 import Footer from './components/layout/Footer'
-import Toast from './components/ui/Toast'
 import Home from './pages/Home'
 import Movies from './pages/Movies'
 import TVShows from './pages/TVShows'
@@ -92,7 +91,6 @@ export default function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Shell />
-      <Toast />
     </BrowserRouter>
   )
 }

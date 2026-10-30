@@ -2,7 +2,7 @@
 /**
  * MegahEnt Admin — control panel.
  * Sidebar views: dashboard, site status, announcements, collections,
- * desktop shell remote config, settings (scanner notifications), security.
+ * desktop shell remote config, settings, security.
  */
 require_once __DIR__ . '/../config.php';
 require_admin();
@@ -13,7 +13,12 @@ $VIEWS = ['dashboard', 'status', 'announcements', 'collections', 'shell', 'livet
 
 /* ----------------------------- POST handlers ----------------------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  csrf_check();
+  if (!csrf_check()) {
+    // Stale token (old tab, expired session, redeploy): back to a fresh
+    // panel with a usable message instead of a dead page.
+    header('Location: index.php?view=dashboard&saved=' . urlencode('Your session expired — please try again.'));
+    exit;
+  }
   $action = $_POST['action'] ?? '';
   $back   = in_array($_POST['view'] ?? '', $VIEWS, true) ? $_POST['view'] : 'dashboard';
 
@@ -28,14 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $st->execute(['site_status', $status]);
       $st->execute(['offline_message', $msg]);
       $flash = 'Site status saved — changes reach every app within seconds.';
-      break;
-
-    case 'save_scanner_toasts':
-      $on = isset($_POST['scanner_toasts']) ? '1' : '0';
-      $st = $pdo->prepare('INSERT INTO settings (skey, svalue) VALUES (?, ?)
-                           ON DUPLICATE KEY UPDATE svalue = VALUES(svalue)');
-      $st->execute(['scanner_toasts', $on]);
-      $flash = $on === '1' ? 'Scanner notifications enabled.' : 'Scanner notifications hidden.';
       break;
 
     case 'save_tmdb_key':
@@ -185,7 +182,6 @@ foreach ($pdo->query('SELECT skey, svalue FROM settings') as $row) {
 }
 $status         = ($settings['site_status'] ?? 'online') === 'offline' ? 'offline' : 'online';
 $offlineMessage = $settings['offline_message'] ?? '';
-$scannerToasts  = ($settings['scanner_toasts'] ?? '0') === '1';
 $shellConfig    = json_decode($settings['shell_config'] ?? '{}', true) ?: [];
 
 $announcements = $pdo->query('SELECT * FROM announcements ORDER BY id DESC')->fetchAll();
@@ -652,24 +648,6 @@ $NAV = [
         <button class="small danger" type="submit">Remove saved key</button>
       </form>
       <?php endif; ?>
-    </section>
-
-    <section>
-      <h2>Scanner notifications <?= $scannerToasts ? '<span class="pill on">ON</span>' : '<span class="pill off">OFF</span>' ?></h2>
-      <p class="hint">
-        Show small toasts in the app when the availability scanner loads the library,
-        hides unavailable titles, or restores titles that came back.
-      </p>
-      <form method="post">
-        <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-        <input type="hidden" name="action" value="save_scanner_toasts">
-        <input type="hidden" name="view" value="settings">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13.5px;color:#e5e2e1">
-          <input type="checkbox" name="scanner_toasts" value="1" <?= $scannerToasts ? 'checked' : '' ?>>
-          Show library &amp; scanner notifications in the app
-        </label>
-        <p style="margin-top:16px"><button type="submit">Save setting</button></p>
-      </form>
     </section>
 
   <?php elseif ($view === 'security'): ?>

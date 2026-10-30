@@ -8,7 +8,11 @@ ensure_session();
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  csrf_check();
+  if (!csrf_check()) {
+    // Stale token (old tab, expired session, redeploy wiped the session):
+    // show the form again with a fresh token instead of a dead page.
+    $error = 'Your session expired — please sign in again.';
+  } else {
   $username = trim($_POST['username'] ?? '');
   $password = $_POST['password'] ?? '';
   $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -36,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     login_failed($ip);
     error_log('admin login failed: ' . $ip . ' user=' . $username);
     $error = 'Invalid username or password.';
+  }
   }
 }
 ?>

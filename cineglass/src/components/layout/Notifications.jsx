@@ -7,7 +7,6 @@ export default function Notifications() {
   const notifications = useStore((s) => s.notifications)
   const markAllRead = useStore((s) => s.markAllNotificationsRead)
   const selectOne = useStore((s) => s.selectNotification)
-  const showToast = useStore((s) => s.showToast)
   const unread = useStore(selectUnreadCount)
 
   useEffect(() => {
@@ -54,7 +53,6 @@ export default function Notifications() {
                 key={n.id}
                 onClick={() => {
                   selectOne(n.id)
-                  showToast(n.title, n.icon)
                 }}
                 className={
                   'w-full text-left flex gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0 ' +

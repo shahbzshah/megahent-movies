@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useStore } from '../../store/useStore'
 import { IS_SHELL } from '../../lib/platform'
 
 const SOCIALS = [
@@ -36,17 +35,17 @@ const COMPANY = [
 ]
 
 export default function Footer() {
-  const showToast = useStore((s) => s.showToast)
   const [email, setEmail] = useState('')
+  const [note, setNote] = useState('')
 
   const subscribe = (e) => {
     e.preventDefault()
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
     if (!valid) {
-      showToast('Please enter a valid email address', 'error')
+      setNote('Please enter a valid email address.')
       return
     }
-    showToast('Subscribed! New release alerts are on their way.', 'mark_email_read')
+    setNote('Subscribed! New release alerts are on their way.')
     setEmail('')
   }
 
@@ -86,6 +85,7 @@ export default function Footer() {
                 Subscribe
               </button>
             </div>
+            {note && <p className="mt-2 text-[13px] text-on-surface-variant">{note}</p>}
           </form>
         </div>
 
@@ -103,7 +103,6 @@ export default function Footer() {
         <nav aria-label="Support" className="space-y-3">
           <h3 className="font-label-md text-label-md uppercase tracking-widest text-on-surface">Support</h3>
           <ul className="space-y-2">
-            <li><button onClick={() => showToast('Help center coming soon!', 'help')} className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors">Help Center</button></li>
             <li><a href="mailto:support@MegahEnt.app" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors">Contact Us</a></li>
             {!IS_SHELL && <li><Link to="/download" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors">Get the App</Link></li>}
             <li><Link to="/settings" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors">Manage Account</Link></li>

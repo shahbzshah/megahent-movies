@@ -83,13 +83,6 @@ export default function SideNav() {
             <span className="material-symbols-outlined text-[20px]">settings</span>
             <span className="font-label-md text-label-md">Settings</span>
           </NavLink>
-          <button
-            onClick={() => useStore.getState().showToast('Help center coming soon!', 'help')}
-            className="flex items-center gap-4 px-4 py-2 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[20px]">help</span>
-            <span className="font-label-md text-label-md">Help</span>
-          </button>
         </div>
         <p className="text-[10px] text-on-surface-variant/60 px-4 leading-relaxed">
           This product uses the TMDB API but is not endorsed or certified by TMDB.

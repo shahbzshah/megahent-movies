@@ -181,14 +181,15 @@ function csrf_token(): string {
   return $_SESSION['csrf'];
 }
 
-/** Validate the CSRF token on POST; hard-stop on mismatch. */
-function csrf_check(): void {
+/** Validate the CSRF token on POST. Returns false on mismatch instead of
+ * dying: a stale token (old tab, expired session, redeploy) must send the
+ * user back to a fresh form with a usable message, not a dead white page.
+ * Callers must skip the action when this returns false. */
+function csrf_check(): bool {
   ensure_session();
   $sent = $_POST['csrf'] ?? '';
-  if (!$sent || !hash_equals($_SESSION['csrf'] ?? '', $sent)) {
-    http_response_code(403);
-    exit('Invalid CSRF token — go back and try again.');
-  }
+  if (!$sent || !hash_equals($_SESSION['csrf'] ?? '', $sent)) return false;
+  return true;
 }
 
 /** Escape for HTML output. */

@@ -13,7 +13,6 @@ import {
 import { loadLibrary, mapLimit, fetchTMDB, fetchDiscoverPage, mapTmdbItem } from '../lib/tmdb'
 import { fetchAppConfig, fetchCollections, fetchAvailability } from '../lib/admin'
 
-let toastSeq = 0
 let availabilityRetries = 0
 
 // Periodically re-ask the server about optimistically-hidden titles; any
@@ -63,10 +62,6 @@ function scheduleResurrectionCheck() {
         })
         store.mergeContent(items)
         saveMyList(useStore.getState().myList)
-        if (store.scannerToasts) {
-          if (items.length === 1) store.showToast(`"${items[0].title}" is available again`, 'visibility')
-          else if (items.length > 1) store.showToast(`${items.length} titles are available again`, 'visibility')
-        }
       }
     } catch {
       // best effort only
@@ -99,7 +94,6 @@ export const useStore = create((set, get) => ({
   siteStatus: 'online',
   offlineMessage: '',
   announcement: null,
-  scannerToasts: false,
   liveTvEnabled: true,
   curatedRows: [],
   adminLoadedOnce: false,
@@ -111,7 +105,6 @@ export const useStore = create((set, get) => ({
         siteStatus: cfg.status === 'offline' ? 'offline' : 'online',
         offlineMessage: cfg.offlineMessage || '',
         announcement: cfg.announcement || null,
-        scannerToasts: Boolean(cfg.scannerToasts),
         liveTvEnabled: cfg.liveTv !== false,
       })
       // A new admin announcement also lands in the notification bell.
@@ -168,11 +161,9 @@ export const useStore = create((set, get) => ({
       if (items.length) {
         get().mergeContent(items)
         set({ loadState: 'ready' })
-        if (get().scannerToasts) get().showToast(`Loaded ${items.length} titles from TMDB`, 'movie')
         get().scanAvailability() // hide dead titles in the background
       } else {
       set({ loadState: 'error' })
-      get().showToast('Could not load titles from TMDB', 'error')
     }
   },
   retryLoad() {
@@ -277,9 +268,6 @@ export const useStore = create((set, get) => ({
           hiddenResurrectable: resurrectable,
         })
         saveMyList(keptList)
-        if (get().scannerToasts) {
-          get().showToast(`Removed ${dead.size} unavailable title${dead.size === 1 ? '' : 's'}`, 'hide_source')
-        }
       }
       scheduleResurrectionCheck()
     } catch {
@@ -298,10 +286,6 @@ export const useStore = create((set, get) => ({
       : [...myList, { id: item.id, title: item.title, type: item.type, addedAt: new Date().toISOString() }]
     saveMyList(next)
     set({ myList: next })
-    get().showToast(
-      exists ? `Removed "${item.title}" from My List` : `Added "${item.title}" to My List ✓`,
-      exists ? 'remove_circle' : 'check_circle',
-    )
   },
 
   progress: loadProgress(),
@@ -315,7 +299,6 @@ export const useStore = create((set, get) => ({
   clearHistory() {
     saveProgress({})
     set({ progress: {} })
-    get().showToast('Continue Watching history cleared', 'history_toggle_off')
   },
 
   user: loadUser(),
@@ -324,17 +307,13 @@ export const useStore = create((set, get) => ({
     set({ authModalOpen: open })
   },
   signIn(name, email) {
-    const returning = Boolean(get().user)
     const user = { name, email, plan: get().user?.plan || 'free' }
     saveUser(user)
     set({ user, authModalOpen: false })
-    get().showToast(`Welcome${returning ? ' back' : ''}, ${name.split(' ')[0]}!`, 'waving_hand')
   },
   signOut() {
-    const name = get().user?.name
     saveUser(null)
     set({ user: null, authModalOpen: false })
-    get().showToast(`Signed out${name ? ` — see you soon, ${name.split(' ')[0]}` : ''}`, 'logout')
   },
   upgradeToPro(planLabel) {
     const user = get().user
@@ -342,7 +321,6 @@ export const useStore = create((set, get) => ({
     const next = { ...user, plan: planLabel.toLowerCase() }
     saveUser(next)
     set({ user: next, upgradeModalOpen: false })
-    get().showToast(`You're now a ${planLabel} member 🎉`, 'workspace_premium')
   },
 
   settings: loadSettings(),
@@ -362,7 +340,6 @@ export const useStore = create((set, get) => ({
       user: null,
       settings: { ...DEFAULT_SETTINGS },
     })
-    get().showToast('All local data has been reset', 'restart_alt')
   },
 
   notifications: [],
@@ -378,7 +355,6 @@ export const useStore = create((set, get) => ({
     if (notifications[0]?.title === cleanTitle && notifications[0]?.body === cleanBody) return
     const id = 'n' + Date.now() + '-' + Math.random().toString(36).slice(2, 7)
     set({ notifications: [{ id, title: cleanTitle, body: cleanBody, icon, time, read: false }, ...notifications] })
-    get().showToast(cleanTitle, icon)
   },
 
   markAllNotificationsRead() {
@@ -391,15 +367,6 @@ export const useStore = create((set, get) => ({
   upgradeModalOpen: false,
   setUpgradeModalOpen(open) {
     set({ upgradeModalOpen: open })
-  },
-
-  toasts: [],
-  showToast(message, icon = 'check_circle') {
-    const id = ++toastSeq
-    set((s) => ({ toasts: [...s.toasts, { id, message, icon }] }))
-  },
-  dismissToast(id) {
-    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }))
   },
 }))
 
