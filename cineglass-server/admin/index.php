@@ -114,11 +114,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       break;
 
     case 'save_shell_config':
+      // Shell URLs are fetched by installed apps without any signature
+      // check (signing lands with the shell rebuilds in Phase 4), so the
+      // minimum server-side bar is: https only, no credentials, and a
+      // host that resolves to a public address.
+      require_once __DIR__ . '/../proxy-guard.php';
       $cfg = [
         'url'           => trim($_POST['app_url'] ?? '') ?: null,
         'filter_url'    => trim($_POST['filter_url'] ?? '') ?: null,
         'force_offline' => isset($_POST['force_offline']),
       ];
+      $bad = null;
+      foreach (['url' => 'App URL', 'filter_url' => 'Filter list URL'] as $k => $label) {
+        if ($cfg[$k] !== null && $cfg[$k] !== '') {
+          $err = guard_public_url($cfg[$k], [443]);
+          if ($err !== null) { $bad = $label . ': ' . $err; break; }
+          if (strpos($cfg[$k], 'https://') !== 0) { $bad = $label . ': must use https'; break; }
+        }
+      }
+      if ($bad !== null) {
+        $flash = 'App config NOT saved — ' . $bad . '.';
+        break;
+      }
       $st = $pdo->prepare('INSERT INTO settings (skey, svalue) VALUES (?, ?)
                            ON DUPLICATE KEY UPDATE svalue = VALUES(svalue)');
       $st->execute(['shell_config', json_encode($cfg)]);
@@ -144,9 +161,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       } elseif (strlen($new) < 8) {
         $flash = 'New password must be at least 8 characters.';
       } else {
-        $pdo->prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?')
+        $pdo->prepare('UPDATE admin_users SET password_hash = ?, session_version = session_version + 1 WHERE id = ?')
             ->execute([password_hash($new, PASSWORD_DEFAULT), $user['id']]);
-        $flash = 'Password changed.';
+        // This session stays valid (it just changed the password); every
+        // other session is dropped by require_admin()'s version check.
+        session_regenerate_id(true);
+        $_SESSION['sess_ver'] = admin_session_version($pdo, $user['username']);
+        $flash = 'Password changed. Other sessions were signed out.';
       }
       break;
   }
@@ -338,9 +359,12 @@ $NAV = [
   </nav>
   <div class="side-foot">
     <span class="mono"><?= e($_SESSION['cg_admin']) ?></span>
-    <nav>
-      <a href="logout.php"><span class="material-symbols-outlined">logout</span>Sign out</a>
-    </nav>
+    <form method="post" action="logout.php">
+      <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+      <nav>
+        <button type="submit" style="background:none;border:0;color:#9ca3af;display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;width:100%;text-align:left"><span class="material-symbols-outlined">logout</span>Sign out</button>
+      </nav>
+    </form>
   </div>
 </aside>
 
@@ -352,7 +376,10 @@ $NAV = [
       <?php foreach ($NAV as $key => [$icon, $label]): ?>
       <a href="index.php?view=<?= $key ?>" class="<?= $view === $key ? 'active' : '' ?>"><span class="material-symbols-outlined" style="font-size:17px"><?= $icon ?></span><?= $label ?></a>
       <?php endforeach; ?>
-      <a href="logout.php" style="color:#fca5a5">Exit</a>
+      <form method="post" action="logout.php" style="display:inline">
+        <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+        <button type="submit" style="background:none;border:0;color:#fca5a5;font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 12px">Exit</button>
+      </form>
     </nav>
   </div>
 
@@ -577,9 +604,10 @@ $NAV = [
     <section>
       <h2>Live TV <?= $liveTvEnabled ? '<span class="pill on">ON</span>' : '<span class="pill off">OFF</span>' ?></h2>
       <p class="hint">
-        Channels stream through the DaddyLive public embed API
-        (<span class="mono">daddylive.mov/api/channels</span>, 1299+ channels).
-        Disabling hides the Live TV section from every app within seconds — no app update needed.
+        Channels come from the iptv-org public playlists (free-to-air
+        streams that broadcasters publish themselves) — Kenya plus news,
+        sports, movies, kids and more. Disabling hides the Live TV section
+        from every app within seconds — no app update needed.
       </p>
       <form method="post">
         <input type="hidden" name="csrf" value="<?= e($csrf) ?>">

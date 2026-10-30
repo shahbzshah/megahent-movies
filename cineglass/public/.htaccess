@@ -4,6 +4,11 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Dead / dangerous files must 404, never fall through to the SPA shell.
+  RewriteRule ^(proxy|install)\.php$ - [R=404,L]
+  RewriteRule ^cineglass-server/tools/ - [R=404,L]
+  RewriteRule ^cineglass-server/(php-err|php-out)\.log$ - [R=404,L]
+
   # TMDB proxy: /api/tmdb?path=/trending/movie/week -> tmdb-proxy.php
   RewriteRule ^api/tmdb/?$ tmdb-proxy.php [QSA,L]
 
@@ -14,6 +19,17 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Security headers (Phase 0). frame-src stays open to https embeds:
+  # the player iframes third-party video hosts, which is the app's job.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https: blob:; connect-src 'self' https:; frame-src https:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
 <IfModule mod_deflate.c>

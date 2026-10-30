@@ -60,6 +60,20 @@ function offlineHtml(
 </html>`
 }
 
+// Escape admin-supplied text before it is interpolated into the offline
+// page: the offline message comes from the database (admin-editable), so
+// raw interpolation is stored HTML injection in the shell. The local
+// default message keeps its intentional markup; only the REMOTE message
+// (remote.offlineMessage) goes through this helper at the call site.
+function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 const DEFAULT_CONFIG = {
   url: 'https://movies.archimnet.com',
   remoteConfigUrl: '',
@@ -316,7 +330,7 @@ function createWindow(config) {
         adminOffline = true
         console.log('[MegahEnt] admin kill-switch ON — showing unavailable screen')
         win
-          .loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(offlineHtml(remote.offlineMessage)))
+          .loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(offlineHtml(escapeHtml(remote.offlineMessage))))
           .catch(() => {})
       } else if (!wantOffline && adminOffline) {
         adminOffline = false

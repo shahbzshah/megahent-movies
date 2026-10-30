@@ -1,11 +1,20 @@
 <?php
 // ============================================================
-// CineGlass - TMDB CORS Proxy
+// CineGlass - TMDB CORS Proxy (hardened, Phase 0)
 // ------------------------------------------------------------
 // The browser cannot call api.themoviedb.org directly because
 // TMDB does not send Access-Control-Allow-Origin headers (CORS).
-// This tiny proxy forwards /3/... requests to TMDB from the
+// This proxy forwards read-only /3/... requests to TMDB from the
 // server and returns the JSON with CORS headers enabled.
+//
+// Hardening vs the original:
+//  - Path allowlist: only public TMDB read endpoints. Anything else
+//    (account, auth, list writes, ...) is rejected.
+//  - Caller-supplied api_key / session_id are stripped, never
+//    forwarded: the server key is the only credential in play.
+//  - No redirect following, TLS verification on, response-size cap.
+//  - The key still comes from TMDB_API_KEY env first, then the
+//    Admin → Settings database row (never shown back anywhere).
 //
 // Usage:  tmdb-proxy.php?path=/trending/movie/week&page=2
 // ============================================================
@@ -20,13 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Key resolution: the TMDB_API_KEY environment variable wins when set;
-// otherwise fall back to the key saved in Admin → Settings (settings
-// table, skey tmdb_api_key). The include is guarded so the proxy still
-// works from the environment key alone if the server code is absent.
 if (file_exists(__DIR__ . '/cineglass-server/config.php')) {
     require_once __DIR__ . '/cineglass-server/config.php';
 }
+require_once __DIR__ . '/cineglass-server/proxy-guard.php';
 
 $apiKey = getenv('TMDB_API_KEY') ?: '';
 if ($apiKey === '' && function_exists('db')) {
@@ -44,52 +50,30 @@ if ($apiKey === '') {
     echo json_encode(['success' => false, 'error' => 'TMDB_API_KEY not configured']);
     exit;
 }
-$base   = 'https://api.themoviedb.org/3';
 
 $path = isset($_GET['path']) ? trim($_GET['path']) : '';
-if ($path === '' || $path[0] !== '/' || strpos($path, '/..') !== false) {
+// Public read endpoints only. Sub-paths (/movie/{id}/credits, /tv/{id}/
+// season/{n}, /search/multi, /discover/...) are covered by the prefix.
+$allowed = '#^/(trending|movie|tv|search|discover|genre|configuration|person|collection|company|keyword|network|review|episode)/#';
+if ($path === '' || $path[0] !== '/' || strpos($path, '/..') !== false || !preg_match($allowed, $path . '/')) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Invalid path']);
     exit;
 }
 
-$url = $base . $path . '?api_key=' . urlencode($apiKey) . '&language=en-US';
-
+$params = ['api_key' => $apiKey, 'language' => 'en-US'];
 foreach ($_GET as $k => $v) {
-    if ($k === 'path') continue;
-    $url .= '&' . urlencode($k) . '=' . urlencode((string) $v);
+    if ($k === 'path' || $k === 'api_key' || $k === 'session_id') continue;
+    if (!preg_match('/^[A-Za-z0-9_]+$/', $k)) continue;
+    $params[$k] = (string) $v;
 }
+$url = 'https://api.themoviedb.org/3' . $path . '?' . http_build_query($params);
 
-$json = null;
-$code = 502;
-
-if (function_exists('curl_init')) {
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 20,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_USERAGENT      => 'Mozilla/5.0 (CineGlass)',
-        CURLOPT_HTTPHEADER     => ['Accept: application/json'],
-    ]);
-    $json = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-} else {
-    $ctx = stream_context_create(['http' => [
-        'timeout' => 20,
-        'header'  => "User-Agent: Mozilla/5.0 (CineGlass)\r\nAccept: application/json\r\n",
-    ]]);
-    $json = @file_get_contents($url, false, $ctx);
-    if ($json !== false) $code = 200;
-}
-
-if ($json === false || $json === null) {
+[$json, $code, $err] = guard_fetch($url, 20);
+if ($json === null) {
     http_response_code(502);
-    echo json_encode(['success' => false, 'error' => 'Upstream request failed']);
+    echo json_encode(['success' => false, 'error' => $err]);
     exit;
 }
-
 http_response_code($code);
 echo $json;

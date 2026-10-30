@@ -12,8 +12,16 @@ const PHP = 'C:\\xampp\\php\\php.exe'
 const CONFIG = path.join(__dirname, '..', 'config.php').replace(/\\/g, '/')
 const SERVER_DIR = path.dirname(CONFIG)
 
-function phpEval(code) {
-  return execFileSync(PHP, ['-r', code], { encoding: 'utf8', timeout: 60000 })
+function phpEval(code, env) {
+  return execFileSync(PHP, ['-r', code], {
+    encoding: 'utf8',
+    timeout: 60000,
+    // Values travel via the environment, never interpolated into the
+    // PHP source: the old finishJob() pasted DB values straight into
+    // executed code (PHP-code injection once any DB-write primitive
+    // exists). The code below reads only getenv() + prepared statements.
+    env: Object.assign({}, process.env, env),
+  })
 }
 
 function nextJob() {
@@ -26,11 +34,14 @@ function nextJob() {
 }
 
 function finishJob(job, available) {
+  const id = Number(job.tmdb_id) | 0
+  const type = job.type === 'tv' ? 'tv' : 'movie'
   phpEval(
     `require '${CONFIG}'; $pdo = db(); ` +
     `$pdo->prepare('INSERT INTO availability (tmdb_id, type, available, deep_done, checked_at) VALUES (?, ?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE available = VALUES(available), deep_done = 1, checked_at = NOW()')` +
-    `->execute([${job.tmdb_id}, '${job.type}', ${available ? 1 : 0}]); ` +
-    `$pdo->prepare('DELETE FROM availability_jobs WHERE tmdb_id = ? AND type = ?')->execute([${job.tmdb_id}, '${job.type}']); `,
+    `->execute([(int) getenv('CG_TMDB'), getenv('CG_TYPE'), (int) getenv('CG_AVAIL')]); ` +
+    `$pdo->prepare('DELETE FROM availability_jobs WHERE tmdb_id = ? AND type = ?')->execute([(int) getenv('CG_TMDB'), getenv('CG_TYPE')]); `,
+    { CG_TMDB: String(id), CG_TYPE: type, CG_AVAIL: available ? '1' : '0' },
   )
 }
 

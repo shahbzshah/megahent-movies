@@ -11,18 +11,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   csrf_check();
   $username = trim($_POST['username'] ?? '');
   $password = $_POST['password'] ?? '';
+  $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
-  $stmt = db()->prepare('SELECT * FROM admin_users WHERE username = ?');
-  $stmt->execute([$username]);
-  $user = $stmt->fetch();
+  if (!login_allowed($ip)) {
+    http_response_code(429);
+    $error = 'Too many failed attempts — try again in 15 minutes.';
+  } else {
+    $stmt = db()->prepare('SELECT * FROM admin_users WHERE username = ?');
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
 
-  if ($user && password_verify($password, $user['password_hash'])) {
-    session_regenerate_id(true);
-    $_SESSION['cg_admin'] = $user['username'];
-    header('Location: index.php');
-    exit;
+    // Always run a verify (dummy hash when the user does not exist) so
+    // a missing username is not measurably faster than a wrong password.
+    $hash = $user ? $user['password_hash'] : password_hash('dummy', PASSWORD_DEFAULT);
+    if ($user && password_verify($password, $hash)) {
+      login_cleared($ip);
+      session_regenerate_id(true);
+      $_SESSION['cg_admin'] = $user['username'];
+      $_SESSION['sess_ver'] = admin_session_version(db(), $user['username']);
+      $_SESSION['last_activity'] = time();
+      header('Location: index.php');
+      exit;
+    }
+    login_failed($ip);
+    error_log('admin login failed: ' . $ip . ' user=' . $username);
+    $error = 'Invalid username or password.';
   }
-  $error = 'Invalid username or password.';
 }
 ?>
 <!doctype html>

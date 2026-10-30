@@ -32,6 +32,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/bootstrap-db.sh \
     && rm -f /var/www/html/cineglass-server/install.php \
               /var/www/html/cineglass-server/php-err.log \
               /var/www/html/cineglass-server/php-out.log \
+    && rm -rf /var/www/html/cineglass-server/tools \
+    && echo 'expose_php=Off' > /usr/local/etc/php/conf.d/cineglass.ini \
     && sed -i '1s/^\xEF\xBB\xBF//' /var/www/html/cineglass-server/schema.sql \
     && sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf \
     && chown -R www-data:www-data /var/www/html \

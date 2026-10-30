@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
@@ -426,7 +427,7 @@ public class MainActivity extends Activity {
                 + "</style></head><body><div class='wrap'>"
                 + "<div class='logo'>MegahEnt</div>"
                 + "<h1>We&rsquo;ll be right back</h1>"
-                + "<p>" + message + "</p>"
+                + "<p>" + TextUtils.htmlEncode(message) + "</p>"
                 + "</div></body></html>";
         String b64 = Base64.encodeToString(html.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
         web.loadData(b64, "text/html", "base64");

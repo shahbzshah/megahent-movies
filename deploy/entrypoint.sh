@@ -17,16 +17,18 @@ if [ ! -d /var/lib/mysql/mysql ]; then
 fi
 
 # Pass container env vars through to PHP (getenv() / $_SERVER). Written at
-# container start only — never committed anywhere.
+# container start only — never committed anywhere. Restricted to 600:
+# it holds the live database password and the TMDB key.
 {
   echo "# Render-injected env for PHP (written at container start)"
-  for k in DB_HOST DB_NAME DB_USER DB_PASS TMDB_API_KEY; do
+  for k in DB_HOST DB_PORT DB_NAME DB_USER DB_PASS DB_SSL_CA TMDB_API_KEY; do
     v="${!k:-}"
     esc="${v//\\/\\\\}"
     esc="${esc//\"/\\\"}"
     echo "SetEnv $k \"$esc\""
   done
 } > /etc/apache2/conf-available/render-env.conf
+chmod 600 /etc/apache2/conf-available/render-env.conf
 a2enconf render-env >/dev/null 2>&1 || true
 
 exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
