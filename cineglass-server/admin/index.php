@@ -259,6 +259,7 @@ $NAV = [
   nav a .material-symbols-outlined { font-size:20px; color:#8b8b8b }
   .side-foot { border-top:1px solid var(--line); padding-top:14px; margin-top:14px }
   .side-foot .mono { display:block; padding:0 13px 10px; font-size:12px }
+  .scrim { display:none }
 
   /* ---------- Layout ---------- */
   .shell-main { margin-left:236px; min-height:100vh; display:flex; flex-direction:column }
@@ -330,17 +331,15 @@ $NAV = [
   .quick a .material-symbols-outlined { font-size:18px; color:#ff571a }
 
   @media (max-width: 900px) {
-    aside { display:none }
-    .topbar { display:flex }
-    /* The base `nav` rule is a vertical column for the sidebar; the mobile
-       topbar must override that or the links stack down the whole screen. */
-    .topbar nav { display:flex; flex-direction:row; flex:1; min-width:0; align-items:center; gap:6px; overflow-x:auto; scrollbar-width:none }
-    .topbar nav::-webkit-scrollbar { display:none }
-    .topbar a {
-      display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:9px;
-      color:#9ca3af; text-decoration:none; font-size:12.5px; font-weight:600; white-space:nowrap;
-    }
-    .topbar a.active { color:#ffb59e; background:rgba(255,87,26,.1) }
+    /* Phone: the sidebar becomes a slide-in drawer, hidden until the
+       hamburger opens it. The top bar holds only the hamburger + logo. */
+    aside { transform:translateX(-105%); transition:transform .28s ease; box-shadow:0 0 60px rgba(0,0,0,.6); overflow:hidden }
+    aside.open { transform:translateX(0) }
+    .scrim { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:35 }
+    .scrim.show { display:block }
+    .topbar { display:flex; justify-content:flex-start; gap:4px }
+    .nav-toggle { background:none; border:0; color:#e5e2e1; cursor:pointer; padding:6px; display:flex; align-items:center }
+    .nav-toggle .material-symbols-outlined { font-size:26px }
     .shell-main { margin-left:0 }
     main.content { padding:24px 16px 80px }
   }
@@ -367,20 +366,13 @@ $NAV = [
     </form>
   </div>
 </aside>
+<div class="scrim" id="navScrim"></div>
 
 <div class="shell-main">
-  <!-- Mobile top nav -->
+  <!-- Mobile top bar: hamburger opens the left drawer -->
   <div class="topbar">
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
     <div class="logo" style="font-family:Sora;font-weight:800">MEGAH<span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">ENT</span></div>
-    <nav>
-      <?php foreach ($NAV as $key => [$icon, $label]): ?>
-      <a href="index.php?view=<?= $key ?>" class="<?= $view === $key ? 'active' : '' ?>"><span class="material-symbols-outlined" style="font-size:17px"><?= $icon ?></span><?= $label ?></a>
-      <?php endforeach; ?>
-      <form method="post" action="logout.php" style="display:inline">
-        <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
-        <button type="submit" style="background:none;border:0;color:#fca5a5;font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 12px">Exit</button>
-      </form>
-    </nav>
   </div>
 
   <main class="content">
@@ -674,5 +666,25 @@ $NAV = [
   </main>
 </div>
 
+<script>
+(function () {
+  var aside = document.querySelector('aside');
+  var toggle = document.getElementById('navToggle');
+  var scrim = document.getElementById('navScrim');
+  if (!aside || !toggle || !scrim) return;
+  function setOpen(open) {
+    aside.classList.toggle('open', open);
+    scrim.classList.toggle('show', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.querySelector('.material-symbols-outlined').textContent = open ? 'close' : 'menu';
+  }
+  toggle.addEventListener('click', function () { setOpen(!aside.classList.contains('open')); });
+  scrim.addEventListener('click', function () { setOpen(false); });
+  aside.querySelectorAll('nav a').forEach(function (a) {
+    a.addEventListener('click', function () { setOpen(false); });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+})();
+</script>
 </body>
 </html>
