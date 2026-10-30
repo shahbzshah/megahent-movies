@@ -3,43 +3,61 @@ import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore'
 import Skeleton from '../components/ui/Skeleton'
 
-// Channel list is scraped server-side from nontongo.win/livetv (cached 10
-// min). Each channel plays by iframing its nontongo player page, which keeps
-// the portal's own referer chain intact for the inner stream requests.
-const CHANNELS_API = '/cineglass-server/api/livetv-channels.php'
+// Channel lists come from iptv-org public playlists (free-to-air streams
+// that broadcasters publish themselves), parsed server-side by
+// cineglass-server/api/iptv-channels.php and cached there for 30 minutes.
+// A channel plays its HLS stream directly in the Player (hls.js) — the
+// server proxies no video. This replaces the old nontongo.win scraper,
+// which is unreachable from datacenter IPs.
+const LISTS = [
+  { key: 'ke', label: 'Kenya' },
+  { key: 'news', label: 'News' },
+  { key: 'sports', label: 'Sports' },
+  { key: 'movies', label: 'Movies' },
+  { key: 'kids', label: 'Kids' },
+  { key: 'music', label: 'Music' },
+  { key: 'documentary', label: 'Documentary' },
+  { key: 'general', label: 'General' },
+]
+
+const CHANNELS_API = '/cineglass-server/api/iptv-channels.php'
 
 export default function LiveTV() {
   const navigate = useNavigate()
   const liveTvEnabled = useStore((s) => s.liveTvEnabled)
 
-  const [channels, setChannels] = useState(null)
-  const [error, setError] = useState(null)
+  const [list, setList] = useState('ke')
+  const [byList, setByList] = useState({})
+  const [errors, setErrors] = useState({})
   const [filter, setFilter] = useState('')
   const [category, setCategory] = useState('All')
 
+  const channels = byList[list] || null
+  const error = errors[list] || null
+
   useEffect(() => {
+    if (byList[list] || errors[list]) return
     let cancelled = false
     ;(async () => {
       try {
-        const res = await fetch(CHANNELS_API)
+        const res = await fetch(`${CHANNELS_API}?list=${encodeURIComponent(list)}`)
+        const data = await res.json().catch(() => null)
         if (!res.ok) {
-          const j = await res.json().catch(() => null)
-          if (j?.live_disabled) {
-            if (!cancelled) setError('Live TV is currently disabled by the admin.')
+          if (data?.live_disabled) {
+            if (!cancelled) setErrors((e) => ({ ...e, [list]: 'Live TV is currently disabled by the admin.' }))
             return
           }
           throw new Error('HTTP ' + res.status)
         }
-        const data = await res.json()
-        if (!cancelled) setChannels(Array.isArray(data) ? data : [])
+        if (!cancelled) setByList((b) => ({ ...b, [list]: Array.isArray(data) ? data : [] }))
       } catch {
-        if (!cancelled) setError('Could not load the channel list. Please try again.')
+        if (!cancelled) setErrors((e) => ({ ...e, [list]: 'Could not load the channel list. Please try again.' }))
       }
     })()
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [list, byList, errors])
 
   const categories = useMemo(() => {
     if (!channels) return []
@@ -62,7 +80,12 @@ export default function LiveTV() {
   }, [channels, filter, category])
 
   const openChannel = (ch) => {
-    navigate(`/player/live?dl=${encodeURIComponent(`https://www.nontongo.win/livetv/${ch.id}`)}&name=${encodeURIComponent(ch.name || 'Live Channel')}`)
+    navigate(`/player/live?hls=${encodeURIComponent(ch.url)}&name=${encodeURIComponent(ch.name || 'Live Channel')}`)
+  }
+
+  const switchList = (key) => {
+    setList(key)
+    setCategory('All')
   }
 
   return (
@@ -88,6 +111,23 @@ export default function LiveTV() {
             className="w-full bg-surface-container/60 border border-white/10 rounded-full py-2.5 pl-10 pr-4 font-label-md text-label-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-white/25 transition-colors disabled:opacity-40"
           />
         </label>
+      </div>
+
+      <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-2 mb-6" id="live-list-tabs">
+        {LISTS.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => switchList(key)}
+            className={
+              'px-4 py-1.5 rounded-full border font-label-md text-label-md whitespace-nowrap transition-colors ' +
+              (list === key
+                ? 'border-primary/60 bg-primary/10 text-primary'
+                : 'border-white/10 bg-surface-container-high/50 text-on-surface-variant hover:text-on-surface hover:border-white/25')
+            }
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {channels && (
@@ -125,6 +165,15 @@ export default function LiveTV() {
           <span className="material-symbols-outlined text-[48px] text-on-surface-variant mb-4">wifi_off</span>
           <h3 className="font-headline-md text-headline-md text-on-surface mb-2">Live TV unavailable</h3>
           <p className="font-body-md text-body-md text-on-surface-variant mb-6">{error}</p>
+          <button
+            onClick={() => {
+              setErrors((e) => ({ ...e, [list]: null }))
+              setByList((b) => ({ ...b, [list]: undefined }))
+            }}
+            className="px-6 py-2.5 rounded-full font-label-md text-white btn-primary hover:opacity-90 transition-opacity"
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -159,7 +208,7 @@ export default function LiveTV() {
               <div className="absolute inset-x-0 bottom-0 p-3">
                 <p className="font-label-md text-label-md text-on-surface truncate">{ch.name}</p>
               </div>
-              <span className="absolute top-2 right-2 w-9 h-9 rounded-full btn-primary text-white flex items-center justify-center opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300">
+              <span className="absolute top-2 right-2 w-9 h-9 rounded-full btn-primary text-white flex items-center justify-center opacity-0 scale-75 group-hover:scale-100 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300">
                 <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
               </span>
             </button>

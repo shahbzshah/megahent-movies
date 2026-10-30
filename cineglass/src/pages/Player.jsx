@@ -23,9 +23,26 @@ export default function Player() {
   const [search] = useSearchParams()
 
   const liveMode = location.pathname === '/player/live'
-  // Embed channels: /player/live?dl=<embed url>&name=<title>
-  const dlUrl = liveMode ? search.get('dl') || '' : ''
-  const dlName = search.get('name') || 'Live Channel'
+  // iptv-org channels: /player/live?hls=<stream url>&name=<title>
+  // The URL is validated here (http(s), no credentials, HLS only). It
+  // only ever arrives from our own allowlisted playlist endpoint — a
+  // hand-typed ?hls= value pointing elsewhere is rejected below. The
+  // old ?dl= iframe mode (unvalidated third-party page in an iframe)
+  // is deleted, not carried over.
+  const rawHls = liveMode ? search.get('hls') || '' : ''
+  const hlsUrl = (() => {
+    if (!rawHls || rawHls.length > 2048) return ''
+    try {
+      const u = new URL(rawHls)
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return ''
+      if (u.username || u.password) return ''
+      if (!/\.m3u8($|[?#])/i.test(u.pathname + u.search)) return ''
+      return u.href
+    } catch {
+      return ''
+    }
+  })()
+  const hlsName = search.get('name') || 'Live Channel'
   // Xtream portal channels: /player/live?xtream=<stream id>&name=<title>
   const xtreamId = liveMode ? Number(search.get('xtream')) || null : null
   const xtreamName = search.get('name') || 'Live Channel'
@@ -59,9 +76,9 @@ export default function Player() {
   const [chromeHover, setChromeHover] = useState(false)
   const chromeVisible = chromeHover || source.status !== 'ready'
 
-  // --- Custom controls (video element only: portal titles + Xtream live) ---
-  const videoMode = portalMode || Boolean(xtreamId)
-  const isLive = Boolean(xtreamId)
+  // --- Custom controls (video element only: portal titles + live HLS) ---
+  const videoMode = portalMode || Boolean(xtreamId) || Boolean(hlsUrl)
+  const isLive = Boolean(xtreamId) || Boolean(hlsUrl)
   const videoRef = useRef(null)
   const stageRef = useRef(null)
   const uiTimer = useRef(null)
@@ -191,7 +208,7 @@ export default function Player() {
   const activeItem = portalMode
     ? { id: params.id, title: portalName, type: 'movie' }
     : liveMode
-      ? (xtreamId ? { id: `xtream-${xtreamId}`, title: xtreamName, type: 'live' } : { id: 'dl-live', title: dlName, type: 'live' })
+      ? (xtreamId ? { id: `xtream-${xtreamId}`, title: xtreamName, type: 'live' } : { id: 'iptv-live', title: hlsName, type: 'live' })
       : item
 
   const resolveSource = () => {
@@ -201,9 +218,9 @@ export default function Player() {
       setSource({ status: 'ready', url: liveUrl(useStore.getState().settings, xtreamId) })
       return
     }
-    // Embed channels: the embed URL is handed to us — iframe it directly.
+    // iptv-org live channels play their HLS stream directly (video mode).
     if (liveMode) {
-      if (dlUrl) setSource({ status: 'ready', url: dlUrl })
+      if (hlsUrl) setSource({ status: 'ready', url: hlsUrl })
       else setSource({ status: 'failed', url: '' })
       return
     }
@@ -266,7 +283,7 @@ export default function Player() {
   useEffect(() => {
     if (source.status !== 'ready' || !activeItem) return
     if (liveMode) {
-      showToast(`Now playing: ${xtreamId ? xtreamName : dlName}`, 'live_tv')
+      showToast(`Now playing: ${xtreamId ? xtreamName : hlsName}`, 'live_tv')
     } else if (isEpisode) {
       showToast(`Playing: ${activeItem.title} S${season}E${episode}`, 'play_circle')
     } else {
@@ -274,9 +291,9 @@ export default function Player() {
     }
   }, [source.url])
 
-  // Xtream channels are HLS — Chromium plays them through hls.js, Safari natively.
+  // Live HLS (Xtream + iptv-org) — Chromium plays them through hls.js, Safari natively.
   useEffect(() => {
-    if (!xtreamId || source.status !== 'ready' || !source.url) return
+    if (!isLive || source.status !== 'ready' || !source.url) return
     let cancelled = false
     let hls = null
     import('hls.js').then(({ default: Hls }) => {
@@ -297,7 +314,7 @@ export default function Player() {
       cancelled = true
       if (hls) hls.destroy()
     }
-  }, [xtreamId, source.url, source.status])
+  }, [isLive, source.url, source.status])
 
   // Portal VOD/episodes are progressive files — plain video src.
   useEffect(() => {
@@ -333,12 +350,12 @@ export default function Player() {
   const title = portalMode
     ? portalName
     : liveMode
-      ? (xtreamId ? xtreamName : dlName)
+      ? (xtreamId ? xtreamName : hlsName)
       : isEpisode ? `${activeItem.title} — S${season}:E${episode}` : activeItem.title
   const progressText = portalMode
     ? portalName
     : liveMode
-      ? `${xtreamId ? xtreamName : dlName} • LIVE`
+      ? `${xtreamId ? xtreamName : hlsName} • LIVE`
       : isEpisode ? `S${season}:E${episode} • ${activeItem.title}` : activeItem.title
   const backTo = portalMovie ? '/movies?source=portal' : portalSeries ? '/tv?source=portal' : liveMode ? '/live' : `/details/${baseId}`
 
@@ -379,7 +396,7 @@ export default function Player() {
               src={source.url}
               onError={handleIframeError}
               className="absolute inset-0 w-full h-full border-0"
-              allow="fullscreen; autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope; clipboard-write"
+              allow="fullscreen; autoplay; encrypted-media; picture-in-picture; accelerometer; gyroscope"
               allowFullScreen
               title={title}
             ></iframe>

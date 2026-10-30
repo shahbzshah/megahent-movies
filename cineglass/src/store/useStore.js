@@ -231,25 +231,32 @@ export const useStore = create((set, get) => ({
       const scanned = get().scannedIds
       const pending = { movie: [], tv: [] }
       for (const c of content) {
-        if (!c.tmdb || !pending[c.type] || scanned[`${c.type}-${c.tmdb}`]) continue
-        pending[c.type].push(c.tmdb)
+        // Content types are movie/show; the scanner buckets are
+        // movie/tv — map show->tv or TV titles are never scanned
+        // (they were silently skipped before this fix).
+        const bucket = c.type === 'show' ? 'tv' : 'movie'
+        if (!c.tmdb || scanned[`${c.type}-${c.tmdb}`]) continue
+        pending[bucket].push(c.tmdb)
       }
       if (!pending.movie.length && !pending.tv.length) return
 
-      for (const id of [...pending.movie, ...pending.tv]) {
-        const type = pending.movie.includes(id) ? 'movie' : 'tv'
-        scanned[`${type}-${id}`] = true
+      for (const [bucket, ids] of Object.entries(pending)) {
+        const ctype = bucket === 'tv' ? 'show' : 'movie'
+        for (const id of ids) scanned[`${ctype}-${id}`] = true
       }
       set({ scannedIds: { ...scanned } })
 
       const dead = new Set()
       await Promise.all(
-        Object.entries(pending).map(async ([type, ids]) => {
+        Object.entries(pending).map(async ([bucket, ids]) => {
+          // Dead keys must use content ids (movie-/show-), not scanner
+          // buckets (movie-/tv-), or hidden shows never match content.
+          const ctype = bucket === 'tv' ? 'show' : 'movie'
           for (let i = 0; i < ids.length; i += 10) {
-            const res = await fetchAvailability(type, ids.slice(i, i + 10))
+            const res = await fetchAvailability(bucket, ids.slice(i, i + 10))
             if (!res?.results) return // server down -> keep everything visible
             for (const [id, ok] of Object.entries(res.results)) {
-              if (!ok) dead.add(`${type}-${id}`)
+              if (!ok) dead.add(`${ctype}-${id}`)
             }
           }
         }),
