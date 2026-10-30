@@ -332,13 +332,17 @@ $NAV = [
   @media (max-width: 900px) {
     aside { display:none }
     .topbar { display:flex }
-    .topbar nav { display:flex; gap:6px; overflow-x:auto; no-scrollbar }
+    /* The base `nav` rule is a vertical column for the sidebar; the mobile
+       topbar must override that or the links stack down the whole screen. */
+    .topbar nav { display:flex; flex-direction:row; flex:1; min-width:0; align-items:center; gap:6px; overflow-x:auto; scrollbar-width:none }
+    .topbar nav::-webkit-scrollbar { display:none }
     .topbar a {
       display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:9px;
       color:#9ca3af; text-decoration:none; font-size:12.5px; font-weight:600; white-space:nowrap;
     }
     .topbar a.active { color:#ffb59e; background:rgba(255,87,26,.1) }
     .shell-main { margin-left:0 }
+    main.content { padding:24px 16px 80px }
   }
 </style>
 </head>
