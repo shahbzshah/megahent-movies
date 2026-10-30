@@ -67,10 +67,14 @@ export default function Player() {
   const markStarted = useStore((s) => s.markStarted)
 
   const [source, setSource] = useState({ status: 'probing', url: '' })
+  // Live streams that fail outright (dead, geo-blocked, off air) get an
+  // in-player message instead of a silent black screen.
+  const [liveError, setLiveError] = useState(false)
+  const [liveRetry, setLiveRetry] = useState(0)
   // TMDB titles: VidAPI/VAPlayer primary, NontonGo fallback.
   const providerRef = useRef('vidapi')
   const [tmdbProvider, setTmdbProvider] = useState('vidapi')
-  // Top chrome (back / title / LIVE) hides once playback starts and
+  // Top chrome (back / title) hides once playback starts and
   // reappears while the mouse is over the player — standard cinema UX.
   const [chromeHover, setChromeHover] = useState(false)
   const chromeVisible = chromeHover || source.status !== 'ready'
@@ -283,12 +287,16 @@ export default function Player() {
     if (!isLive || source.status !== 'ready' || !source.url) return
     let cancelled = false
     let hls = null
+    setLiveError(false)
     import('hls.js').then(({ default: Hls }) => {
       if (cancelled || !videoRef.current) return
       if (Hls.isSupported()) {
         hls = new Hls({ enableWorker: true, lowLatencyMode: true })
         hls.loadSource(source.url)
         hls.attachMedia(videoRef.current)
+        hls.on(Hls.Events.ERROR, (_e, data) => {
+          if (data.fatal) setLiveError(true)
+        })
         videoRef.current.play().catch(() => {})
       } else {
         videoRef.current.src = source.url
@@ -298,7 +306,7 @@ export default function Player() {
       cancelled = true
       if (hls) hls.destroy()
     }
-  }, [isLive, source.url, source.status])
+  }, [isLive, source.url, source.status, liveRetry])
 
   // Portal VOD/episodes are progressive files — plain video src.
   useEffect(() => {
@@ -339,7 +347,7 @@ export default function Player() {
   const progressText = portalMode
     ? portalName
     : liveMode
-      ? `${xtreamId ? xtreamName : hlsName} • LIVE`
+      ? `${xtreamId ? xtreamName : hlsName}`
       : isEpisode ? `S${season}:E${episode} • ${activeItem.title}` : activeItem.title
   const backTo = portalMovie ? '/movies?source=portal' : portalSeries ? '/tv?source=portal' : liveMode ? '/live' : `/details/${baseId}`
 
@@ -370,6 +378,7 @@ export default function Player() {
               onPlay={() => { setIsPlaying(true); showUi() }}
               onPause={() => { setIsPlaying(false); setUiVisible(true); clearTimeout(uiTimer.current) }}
               onEnded={() => { setIsPlaying(false); setUiVisible(true) }}
+              onError={() => { if (isLive) setLiveError(true) }}
               onTimeUpdate={() => { if (!seekingRef.current) setCurrentTime(videoRef.current?.currentTime || 0) }}
               onDurationChange={() => setDuration(videoRef.current?.duration || 0)}
               onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
@@ -407,7 +416,7 @@ export default function Player() {
           )}
 
           {/* Center play button while paused (video mode) */}
-          {videoMode && !isPlaying && source.status === 'ready' && (
+          {videoMode && !isPlaying && source.status === 'ready' && !liveError && (
             <button
               onClick={togglePlay}
               aria-label="Play"
@@ -417,6 +426,29 @@ export default function Player() {
                 <span className="material-symbols-outlined text-[44px]" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
               </span>
             </button>
+          )}
+
+          {/* Dead live stream: say so inside the player, with a way out */}
+          {isLive && liveError && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 px-6 text-center bg-black/70">
+              <span className="material-symbols-outlined text-[44px] text-on-surface-variant">live_tv</span>
+              <p className="font-label-md text-label-md text-on-surface">This stream is unavailable right now</p>
+              <p className="font-body-md text-body-md text-on-surface-variant">It may be off air, geo-blocked, or down. Try another channel.</p>
+              <div className="flex gap-3 mt-1">
+                <button
+                  onClick={() => { setLiveError(false); setLiveRetry((n) => n + 1) }}
+                  className="px-6 py-2.5 rounded-full font-label-md text-white btn-primary hover:opacity-90 transition-opacity"
+                >
+                  Retry
+                </button>
+                <Link
+                  to="/live"
+                  className="px-6 py-2.5 rounded-full font-label-md text-on-surface glass-panel hover:text-primary transition-colors"
+                >
+                  Other channels
+                </Link>
+              </div>
+            </div>
           )}
 
           <div
@@ -450,15 +482,6 @@ export default function Player() {
                   {tmdbProvider === 'vidapi' ? 'Source 1' : 'Source 2'}
                 </button>
               )}
-              <div
-                id="player-live-badge"
-                className={
-                  'items-center gap-1 px-3 py-1 rounded-full bg-primary/20 text-primary font-label-sm text-label-sm uppercase tracking-wider border border-primary/30 ' +
-                  (liveMode ? 'flex' : 'hidden')
-                }
-              >
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span> LIVE
-              </div>
               <div id="player-progress-text" className="glass-panel px-4 py-2 rounded-full text-on-surface font-label-sm text-label-sm hidden md:block">{progressText}</div>
             </div>
           </div>

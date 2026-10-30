@@ -73,9 +73,11 @@ foreach (preg_split('/\r\n|\n|\r/', $m3u) as $line) {
     continue;
   }
   if ($line[0] === '#') continue;
-  // Stream URL line: only HLS, only http(s), no credentials.
+  // Stream URL line: only HLS, only https, no credentials. Plain http
+  // streams can never play: the site is https, so the browser blocks
+  // them as mixed content (and hls.js needs CORS on top of that).
   if ($pending !== null && $pending['name'] !== '') {
-    if (preg_match('~^https?://[^\\s\'"<>]+\\.m3u8($|[?#])~i', $line) && !isset($seen[$line])) {
+    if (preg_match('~^https://[^\\s\'"<>]+\\.m3u8($|[?#])~i', $line) && !isset($seen[$line])) {
       $seen[$line] = true;
       $channels[] = [
         'id'       => md5($line),
