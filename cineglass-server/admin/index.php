@@ -260,6 +260,7 @@ $NAV = [
   .side-foot { border-top:1px solid var(--line); padding-top:14px; margin-top:14px }
   .side-foot .mono { display:block; padding:0 13px 10px; font-size:12px }
   .scrim { display:none }
+  .nav-check { position:absolute; opacity:0; pointer-events:none }
 
   /* ---------- Layout ---------- */
   .shell-main { margin-left:236px; min-height:100vh; display:flex; flex-direction:column }
@@ -332,14 +333,19 @@ $NAV = [
 
   @media (max-width: 900px) {
     /* Phone: the sidebar becomes a slide-in drawer, hidden until the
-       hamburger opens it. The top bar holds only the hamburger + logo. */
+       hamburger opens it. Pure CSS (checkbox) so it works even if the
+       browser blocks scripts: the label toggles the checkbox, the
+       checkbox drives the drawer and the backdrop. */
     aside { transform:translateX(-105%); transition:transform .28s ease; box-shadow:0 0 60px rgba(0,0,0,.6); overflow:hidden }
-    aside.open { transform:translateX(0) }
-    .scrim { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:35 }
-    .scrim.show { display:block }
+    .nav-check:checked ~ aside { transform:translateX(0) }
+    .scrim { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:35; cursor:pointer }
+    .nav-check:checked ~ .scrim { display:block }
     .topbar { display:flex; justify-content:flex-start; gap:4px }
     .nav-toggle { background:none; border:0; color:#e5e2e1; cursor:pointer; padding:6px; display:flex; align-items:center }
     .nav-toggle .material-symbols-outlined { font-size:26px }
+    .nav-toggle .icon-close { display:none }
+    .nav-check:checked ~ .shell-main .nav-toggle .icon-menu { display:none }
+    .nav-check:checked ~ .shell-main .nav-toggle .icon-close { display:inline }
     .shell-main { margin-left:0 }
     main.content { padding:24px 16px 80px }
   }
@@ -347,6 +353,7 @@ $NAV = [
 </head>
 <body>
 
+<input type="checkbox" id="navToggle" class="nav-check">
 <aside>
   <div class="brand">MEGAH<span>ENT</span><small>ADMIN PANEL</small></div>
   <nav>
@@ -366,12 +373,12 @@ $NAV = [
     </form>
   </div>
 </aside>
-<div class="scrim" id="navScrim"></div>
+<label class="scrim" for="navToggle"></label>
 
 <div class="shell-main">
   <!-- Mobile top bar: hamburger opens the left drawer -->
   <div class="topbar">
-    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
+    <label class="nav-toggle" for="navToggle" aria-label="Open menu"><span class="material-symbols-outlined icon-menu">menu</span><span class="material-symbols-outlined icon-close">close</span></label>
     <div class="logo" style="font-family:Sora;font-weight:800">MEGAH<span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">ENT</span></div>
   </div>
 
@@ -666,25 +673,5 @@ $NAV = [
   </main>
 </div>
 
-<script>
-(function () {
-  var aside = document.querySelector('aside');
-  var toggle = document.getElementById('navToggle');
-  var scrim = document.getElementById('navScrim');
-  if (!aside || !toggle || !scrim) return;
-  function setOpen(open) {
-    aside.classList.toggle('open', open);
-    scrim.classList.toggle('show', open);
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    toggle.querySelector('.material-symbols-outlined').textContent = open ? 'close' : 'menu';
-  }
-  toggle.addEventListener('click', function () { setOpen(!aside.classList.contains('open')); });
-  scrim.addEventListener('click', function () { setOpen(false); });
-  aside.querySelectorAll('nav a').forEach(function (a) {
-    a.addEventListener('click', function () { setOpen(false); });
-  });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
-})();
-</script>
 </body>
 </html>
