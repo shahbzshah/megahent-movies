@@ -376,7 +376,7 @@ export default function Player() {
           onMouseMove={onStageMouseMove}
           onMouseLeave={onStageMouseLeave}
         >
-          {(portalMode || xtreamId) && source.status === 'ready' && source.url ? (
+          {videoMode && source.status === 'ready' && source.url ? (
             <video
               ref={videoRef}
               className="absolute inset-0 w-full h-full bg-black"
