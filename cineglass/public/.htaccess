@@ -6,6 +6,7 @@
 
   # Dead / dangerous files must 404, never fall through to the SPA shell.
   RewriteRule ^(proxy|install)\.php$ - [R=404,L]
+  RewriteRule ^cineglass-server/install\.php$ - [R=404,L]
   RewriteRule ^cineglass-server/tools/ - [R=404,L]
   RewriteRule ^cineglass-server/(php-err|php-out)\.log$ - [R=404,L]
 

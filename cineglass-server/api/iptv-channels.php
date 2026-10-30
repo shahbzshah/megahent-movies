@@ -75,7 +75,7 @@ foreach (preg_split('/\r\n|\n|\r/', $m3u) as $line) {
   if ($line[0] === '#') continue;
   // Stream URL line: only HLS, only http(s), no credentials.
   if ($pending !== null && $pending['name'] !== '') {
-    if (preg_match('#^https?://[^\\s\'"<>]+\\.m3u8($|[?#])#i', $line) && !isset($seen[$line])) {
+    if (preg_match('~^https?://[^\\s\'"<>]+\\.m3u8($|[?#])~i', $line) && !isset($seen[$line])) {
       $seen[$line] = true;
       $channels[] = [
         'id'       => md5($line),
